@@ -1,16 +1,18 @@
-import React from "react"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components"
+import { useForm } from "react-hook-form";
 import BoardService from "../../service/BoardService";
 import AuthService from "../../service/AuthService";
 import NavBar from "../navBar/NavBar";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
 import UserService from "../../service/UserService";
 import "react-bootstrap";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import {Icon, Input} from "@material-ui/core";
-import Snackbar from "@material-ui/core/Snackbar";
+import { Icon, Input } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
 
 const Board = styled.div`
   border: 0.063em solid lightgrey;
@@ -26,411 +28,399 @@ const Container = styled.div`
   display: flex;
 `;
 
-class Boards extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            boards: [],
-            newBoardName: "",
-            editBoardName: "",
-            editBoardUsername: "",
-            editBoardId: null,
-            deleteBoardId: null,
-            isModalCreateShowed: false,
-            isModalUpdateShowed: false,
-            isModalConfirmBoardDeletionShowed: false,
-            isModalConfirmAccountDeletionShowed: false,
-            isSnackbarUserNotFoundShowed: false,
-            isSnackbarUserAddingSuccessful: false,
-            isSnackbarUserRemovingSuccessful: false
-        };
-    }
+export default function Boards() {
+    const navigate = useNavigate();
+    const [boards, setBoards] = useState([]);
+    const [newBoardName, setNewBoardName] = useState("");
+    const [editBoardName, setEditBoardName] = useState("");
+    const [editBoardUsername, setEditBoardUsername] = useState("");
+    const [editBoardId, setEditBoardId] = useState(null);
+    const [deleteBoardId, setDeleteBoardId] = useState(null);
+    const [isModalCreateShowed, setIsModalCreateShowed] = useState(false);
+    const [isModalUpdateShowed, setIsModalUpdateShowed] = useState(false);
+    const [isModalConfirmBoardDeletionShowed, setIsModalConfirmBoardDeletionShowed] = useState(false);
+    const [isModalConfirmAccountDeletionShowed, setIsModalConfirmAccountDeletionShowed] = useState(false);
+    const [isSnackbarUserNotFoundShowed, setIsSnackbarUserNotFoundShowed] = useState(false);
+    const [isSnackbarUserAddingSuccessful, setIsSnackbarUserAddingSuccessful] = useState(false);
+    const [isSnackbarUserRemovingSuccessful, setIsSnackbarUserRemovingSuccessful] = useState(false);
 
-    componentDidMount() {
+    const {
+        register: registerSave,
+        handleSubmit: handleSubmitSave,
+    } = useForm();
+
+    const {
+        register: registerEdit,
+        handleSubmit: handleSubmitEdit,
+        setValue
+    } = useForm();
+
+    useEffect(() => {
         BoardService.fetchBoards(AuthService.getUsername()).then(response => {
             if (response.status === 200) {
-                this.setState({
-                    boards: response.data,
-                });
+                setBoards(response.data)
             }
         }).catch(error => {
             if (error.response.status === 401) {
                 localStorage.clear(); // Prevent infinite loop
-                this.props.history.push("");
+                navigate("/");
             }
         });
+    }, [navigate])
+
+    const updateState = (newBoardName, editBoardName, editBoardUsername, editBoardId, deleteBoardId,
+        isModalCreateShowed, isModalUpdateShowed,
+        isModalConfirmBoardDeletionShowed, isModalConfirmAccountDeletionShowed,
+        isSnackbarUserNotFoundShowed, isSnackbarUserAddingSuccessful,
+        isSnackbarUserRemovingSuccessful, response) => {
+        setBoards(response ? response : boards);
+        setNewBoardName(newBoardName);
+        setEditBoardName(editBoardName);
+        setEditBoardUsername(editBoardUsername);
+        setEditBoardId(editBoardId);
+        setDeleteBoardId(deleteBoardId);
+        setIsModalCreateShowed(isModalCreateShowed);
+        setIsModalUpdateShowed(isModalUpdateShowed);
+        setIsModalConfirmBoardDeletionShowed(isModalConfirmBoardDeletionShowed);
+        setIsModalConfirmAccountDeletionShowed(isModalConfirmAccountDeletionShowed);
+        setIsSnackbarUserNotFoundShowed(isSnackbarUserNotFoundShowed);
+        setIsSnackbarUserAddingSuccessful(isSnackbarUserAddingSuccessful);
+        setIsSnackbarUserRemovingSuccessful(isSnackbarUserRemovingSuccessful);
     }
 
-    updateState = (newBoardName, editBoardName, editBoardUsername, editBoardId, deleteBoardId,
-                   isModalCreateShowed, isModalUpdateShowed,
-                   isModalConfirmBoardDeletionShowed, isModalConfirmAccountDeletionShowed,
-                   isSnackbarUserNotFoundShowed, isSnackbarUserAddingSuccessful,
-                   isSnackbarUserRemovingSuccessful, response) => {
-        this.setState(prevState => {
-            return {
-                boards: response ? response : prevState.boards,
-                newBoardName: newBoardName,
-                editBoardName: editBoardName,
-                editBoardUsername: editBoardUsername,
-                editBoardId: editBoardId,
-                deleteBoardId: deleteBoardId,
-                isModalCreateShowed: isModalCreateShowed,
-                isModalUpdateShowed: isModalUpdateShowed,
-                isModalConfirmBoardDeletionShowed: isModalConfirmBoardDeletionShowed,
-                isModalConfirmAccountDeletionShowed: isModalConfirmAccountDeletionShowed,
-                isSnackbarUserNotFoundShowed: isSnackbarUserNotFoundShowed,
-                isSnackbarUserAddingSuccessful: isSnackbarUserAddingSuccessful,
-                isSnackbarUserRemovingSuccessful: isSnackbarUserRemovingSuccessful
-            }
-        });
-    }
-
-    updateStateAfterWriting = (response) => {
-        this.updateState("", "", "", null, null,
+    const updateStateAfterWriting = (response) => {
+        updateState("", "", "", null, null,
             false, false, false,
             false, false, false,
             false, response)
     }
 
-    changeModalStateCreate = (isModalCreateShowed) => {
-        this.updateState("", "", "", null, null,
+    const changeModalStateCreate = (isModalCreateShowed) => {
+        updateState("", "", "", null, null,
             isModalCreateShowed, false, false,
             false, false, false,
             false, false)
     };
 
-    changeModalStateUpdate = (isModalUpdateShowed, editBoardId, editBoardName) => {
-        this.updateState("", editBoardName, "", editBoardId, null,
+    const changeModalStateUpdate = (isModalUpdateShowed, editBoardId, editBoardName) => {
+        updateState("", editBoardName, "", editBoardId, null,
             false, isModalUpdateShowed, false,
             false, false, false,
             false, false)
     };
 
-    showModalCreate = () => {
-        this.changeModalStateCreate(true)
+    const showModalCreate = () => {
+        changeModalStateCreate(true)
     };
 
-    hideModalCreate = () => {
-        this.changeModalStateCreate(false)
+    const hideModalCreate = () => {
+        changeModalStateCreate(false)
     };
 
-    showModalUpdate = (editBoardId, editBoardName) => {
-        this.changeModalStateUpdate(true, editBoardId, editBoardName);
+    const showModalUpdate = (editBoardId, editBoardName) => {
+        changeModalStateUpdate(true, editBoardId, editBoardName);
+        setValue("editBoardName", editBoardName);
+        setValue("editBoardUsername", "");
     };
 
-    hideModalUpdate = () => {
-        this.changeModalStateUpdate(false)
+    const hideModalUpdate = () => {
+        changeModalStateUpdate(false)
     };
 
-    changeModalStateConfirmBoardDeletion = (isModalConfirmBoardDeletionShowed, deleteBoardId) => {
-        this.updateState("", "", "", null, deleteBoardId,
+    const changeModalStateConfirmBoardDeletion = (isModalConfirmBoardDeletionShowed, deleteBoardId) => {
+        updateState("", "", "", null, deleteBoardId,
             false, false,
             isModalConfirmBoardDeletionShowed, false, false,
             false, false, false)
     };
 
-    changeModalStateConfirmAccountDeletion = (isModalConfirmAccountDeletionShowed) => {
-        this.updateState("", "", "", null, null,
+    const changeModalStateConfirmAccountDeletion = (isModalConfirmAccountDeletionShowed) => {
+        updateState("", "", "", null, null,
             false, false, false,
             isModalConfirmAccountDeletionShowed, false, false,
             false, false)
     };
 
-    showModalConfirmBoardDeletion = (boardId) => {
-        this.changeModalStateConfirmBoardDeletion(true, boardId)
+    const showModalConfirmBoardDeletion = (boardId) => {
+        changeModalStateConfirmBoardDeletion(true, boardId)
     };
 
-    hideModalConfirmBoardDeletion = () => {
-        this.changeModalStateConfirmBoardDeletion(false, null)
+    const hideModalConfirmBoardDeletion = () => {
+        changeModalStateConfirmBoardDeletion(false, null)
     };
 
-    showModalConfirmAccountDeletion = () => {
-        this.changeModalStateConfirmAccountDeletion(true);
+    const showModalConfirmAccountDeletion = () => {
+        changeModalStateConfirmAccountDeletion(true);
     };
 
-    hideModalConfirmAccountDeletion = () => {
-        this.changeModalStateConfirmAccountDeletion(false)
+    const hideModalConfirmAccountDeletion = () => {
+        changeModalStateConfirmAccountDeletion(false)
     };
 
-    setStateSnackbarUserAddingSuccessful = (snackbarState) => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                isSnackbarUserAddingSuccessful: snackbarState
-            }
-        })
+    const setStateSnackbarUserAddingSuccessful = (snackbarState) => {
+        setIsSnackbarUserAddingSuccessful(snackbarState);
     }
 
-    setStateSnackbarUserRemovingSuccessful(snackbarState) {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                isSnackbarUserRemovingSuccessful: snackbarState
-            }
-        })
+    const setStateSnackbarUserRemovingSuccessful = (snackbarState) => {
+        setIsSnackbarUserRemovingSuccessful(snackbarState)
     }
 
-    setStateSnackbarUserNotFound = (snackbarState) => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                isSnackbarUserNotFoundShowed: snackbarState
-            }
-        });
+    const setStateSnackbarUserNotFound = (snackbarState) => {
+        setIsSnackbarUserNotFoundShowed(snackbarState);
     };
 
-    handleChange = (event) => {
-        const {name, value} = event.target;
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                [name]: value
-            }
-        });
-    }
-
-    saveBoard = () => {
-        if (!this.state.newBoardName || this.state.newBoardName.length === 0) {
+    const saveBoard = (formData) => {
+        console.log("firing");
+        if (!formData.newBoardName || formData.newBoardName.length === 0) {
             alert("Please enter board name.");
             return
         }
         BoardService.saveBoard({
-            boardName: this.state.newBoardName,
+            boardName: formData.newBoardName,
             username: AuthService.getUsername()
         }).then(response => {
             if (response.status === 201) {
-                this.updateStateAfterWriting(response.data)
+                updateStateAfterWriting(response.data)
             }
         }).catch(error => {
             if (error.response.status === 401) {
                 localStorage.clear(); // Prevent infinite loop
-                this.props.history.push("");
+                navigate("/");
             }
         });
     }
 
-    updateBoard = () => {
-        if (!this.state.editBoardName || this.state.editBoardName.length === 0) {
+    const updateBoard = (formData) => {
+        if (!formData.editBoardName || formData.editBoardName.length === 0) {
             alert("Please enter board name.");
             return
         }
         BoardService.updateBoard({
-            boardId: this.state.editBoardId,
-            boardName: this.state.editBoardName,
+            boardId: editBoardId,
+            boardName: formData.editBoardName,
             username: AuthService.getUsername()
         }).then(response => {
             if (response.status === 200) {
-                this.updateStateAfterWriting(response.data)
+                updateStateAfterWriting(response.data)
             }
         }).catch(error => {
             if (error.response.status === 401) {
                 localStorage.clear(); // Prevent infinite loop
-                this.props.history.push("");
+                navigate("/");
             }
         });
     }
 
-    addUserToBoard = () => {
-        if (!this.state.editBoardUsername || this.state.editBoardUsername.length === 0) {
+    const addUserToBoard = (formData) => {
+        if (!formData.editBoardUsername || formData.editBoardUsername.length === 0) {
             alert("Please enter username.");
             return
         }
         BoardService.addUserToBoard({
-            boardId: this.state.editBoardId,
-            username: this.state.editBoardUsername
+            boardId: editBoardId,
+            username: formData.editBoardUsername
         }).then(response => {
             if (response.status === 200) {
-                this.setStateSnackbarUserAddingSuccessful(true);
+                setStateSnackbarUserAddingSuccessful(true);
             }
         }).catch(error => {
             if (error.response.status === 401) {
                 localStorage.clear(); // Prevent infinite loop
-                this.props.history.push("");
+                navigate("/");
             } else if (error.response.status === 404) {
-                this.setStateSnackbarUserNotFound(true);
+                setStateSnackbarUserNotFound(true);
             }
         });
     };
 
-    removeUserFromBoard = () => {
-        if (!this.state.editBoardUsername || this.state.editBoardUsername.length === 0) {
+    const removeUserFromBoard = (formData) => {
+        if (!formData.editBoardUsername || formData.editBoardUsername.length === 0) {
             alert("Please enter username.");
             return
         }
         BoardService.removeUserFromBoard({
-            boardId: this.state.editBoardId,
-            username: this.state.editBoardUsername
+            boardId: editBoardId,
+            username: formData.editBoardUsername
         }).then(response => {
             if (response.status === 200) {
-                this.setStateSnackbarUserRemovingSuccessful(true);
+                setStateSnackbarUserRemovingSuccessful(true);
             }
         }).catch(error => {
             if (error.response.status === 401) {
                 localStorage.clear(); // Prevent infinite loop
-                this.props.history.push("");
+                navigate("/");
             } else if (error.response.status === 404) {
-                this.setStateSnackbarUserNotFound(true);
+                setStateSnackbarUserNotFound(true);
             }
         });
     };
 
-    deleteBoard = (boardId) => {
+    const deleteBoard = (boardId) => {
         BoardService.deleteBoard({
             boardId: boardId,
             username: AuthService.getUsername()
         }).then(response => {
             if (response.status === 200) {
-                this.updateStateAfterWriting(response.data)
+                updateStateAfterWriting(response.data)
             }
         }).catch(error => {
             if (error.response.status === 401) {
                 localStorage.clear(); // Prevent infinite loop
-                this.props.history.push("");
+                navigate("/");
             }
         });
     };
 
-    deleteAccount = () => {
+    const deleteAccount = () => {
         UserService.deleteUser({
             username: AuthService.getUsername()
         }).then(() => {
             localStorage.clear(); // Prevent infinite loop
-            this.props.history.push("");
+            navigate("/");
         });
     };
 
-    logout = () => {
+    const logout = () => {
         localStorage.removeItem("userInfo");
-        this.props.history.push("");
+        navigate("/");
     };
 
-    render() {
-        if (typeof this.state.boards[0] == "undefined") {
-            return (
-                <React.Fragment>
-                    <NavBar create={this.showModalCreate} logout={this.logout}
-                            deleteAccount={this.showModalConfirmAccountDeletion}/>
-                    <Modal onHide={this.hideModalCreate} show={this.state.isModalCreateShowed} size="sm"
-                           aria-labelledby="contained-modal-title-vcenter" centered>
+
+    if (typeof boards[0] == "undefined") {
+        return (
+            <React.Fragment>
+                <NavBar create={showModalCreate} logout={logout}
+                    deleteAccount={showModalConfirmAccountDeletion} />
+                <Modal onHide={hideModalCreate} show={isModalCreateShowed} size="sm"
+                    aria-labelledby="contained-modal-title-vcenter" centered>
+                    <form className="form" onSubmit={handleSubmitSave(saveBoard)}>
                         <Modal.Body>
-                            <Input placeholder="Enter board name..."
-                                   value={this.state.newBoardName}
-                                   name="newBoardName"
-                                   inputProps={{"aria-label": "description"}}
-                                   onChange={this.handleChange}/>
+                            <Input
+                                type="text"
+                                name="newBoardName"
+                                placeholder="Enter board name..."
+                                inputProps={{ "aria-label": "description" }}
+                                {...registerSave("newBoardName", { required: true })}
+                            />
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button variant="primary" onClick={this.saveBoard}>Submit</Button>
-                            <Button variant="secondary" onClick={this.hideModalCreate}>Close</Button>
+                            <Button variant="primary" type="submit">Submit</Button>
+                            <Button variant="secondary" onClick={hideModalCreate}>Close</Button>
                         </Modal.Footer>
-                    </Modal>
-                    <ConfirmDialog open={this.state.isModalConfirmAccountDeletionShowed}
-                                   onClose={this.hideModalConfirmAccountDeletion}
-                                   DialogTitle={"Account deletion"}
-                                   DialogContent={`This account, and all of the data associated with it, will be deleted. 
-                               This action is irreversible. Are you sure you want to proceed?`}
-                                   onClickCancel={this.hideModalConfirmAccountDeletion}
-                                   onClickConfirm={this.deleteAccount}/>
-                </React.Fragment>
-            )
-        }
-        return (
-            <main>
-                <NavBar create={this.showModalCreate} logout={this.logout}
-                        deleteAccount={this.showModalConfirmAccountDeletion}/>
-                <Container>
-                    {
-                        this.state.boards.map((board) => {
-                            const {id, name} = board
-                            const toProps = {
-                                pathname: "/board/" + id
-                            };
-                            return (
-                                <Board key={id}>
-                                    <Link to={toProps}>
-                                        {name}
-                                    </Link>
-                                    <Icon style={{marginLeft: 8, cursor: "pointer"}}
-                                          onClick={() => this.showModalUpdate(id, name)}>edit</Icon>
-                                    <Icon style={{marginLeft: 8, cursor: "pointer"}}
-                                          onClick={() => this.showModalConfirmBoardDeletion(id)}>delete</Icon>
-                                </Board>
-                            )
-                        })
-                    }
-                </Container>
-                <Modal onHide={this.hideModalCreate} show={this.state.isModalCreateShowed} size="sm"
-                       aria-labelledby="contained-modal-title-vcenter" centered>
-                    <Modal.Body>
-                        <Input placeholder="Enter board name..."
-                               value={this.state.newBoardName}
-                               name="newBoardName"
-                               inputProps={{"aria-label": "description", maxLength: 40}}
-                               onChange={this.handleChange}/>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={this.saveBoard}>Submit</Button>
-                        <Button variant="secondary" onClick={this.hideModalCreate}>Close</Button>
-                    </Modal.Footer>
+                    </form>
                 </Modal>
-                <Modal onHide={this.hideModalUpdate} show={this.state.isModalUpdateShowed}
-                       aria-labelledby="contained-modal-title-vcenter" centered>
-                    <Modal.Body style={{width: "600px"}}>
-                        <Input placeholder="Enter board name..."
-                               name="editBoardName"
-                               value={this.state.editBoardName || ""} // Use || to handle change from controlled to uncontrolled input
-                               style={{width: "18.750em"}}
-                               inputProps={{"aria-label": "description", maxLength: 40}}
-                               onChange={this.handleChange}/>
-                        <br/>
-                        <Input placeholder="Enter username to add to the board..."
-                               name="editBoardUsername"
-                               value={this.state.editBoardUsername || ""} // Use || to handle change from controlled to uncontrolled input
-                               style={{width: "18.750em"}}
-                               inputProps={{"aria-label": "description", maxLength: 30}}
-                               onChange={this.handleChange}/>
-                        <Button style={{marginLeft: "10px", marginRight: "10px", verticalAlign: "inherit"}}
-                                variant="success" onClick={this.addUserToBoard}>ADD</Button>
-                        <Button style={{marginRight: "10px", verticalAlign: "inherit"}} variant="danger"
-                                onClick={this.removeUserFromBoard}>REMOVE</Button>
-                        <br/>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={this.updateBoard}>Submit</Button>
-                        <Button variant="secondary" onClick={this.hideModalUpdate}>Close</Button>
-                    </Modal.Footer>
-                </Modal>
-                <Snackbar
-                    open={this.state.isSnackbarUserAddingSuccessful}
-                    autoHideDuration={4000}
-                    onClose={() => this.setStateSnackbarUserAddingSuccessful(false)}
-                    message="Adding successful."/>
-                <Snackbar
-                    open={this.state.isSnackbarUserRemovingSuccessful}
-                    autoHideDuration={4000}
-                    onClose={() => this.setStateSnackbarUserRemovingSuccessful(false)}
-                    message="Removing successful."/>
-                <Snackbar
-                    open={this.state.isSnackbarUserNotFoundShowed}
-                    autoHideDuration={4000}
-                    onClose={() => this.setStateSnackbarUserNotFound(false)}
-                    message="User not found."/>
-                <ConfirmDialog open={this.state.isModalConfirmBoardDeletionShowed}
-                               onClose={this.hideModalConfirmBoardDeletion}
-                               DialogTitle={"Board deletion"}
-                               DialogContent={"Are you sure you want to delete this board?"}
-                               onClickCancel={this.hideModalConfirmBoardDeletion}
-                               onClickConfirm={() => this.deleteBoard(this.state.deleteBoardId)}/>
-                <ConfirmDialog open={this.state.isModalConfirmAccountDeletionShowed}
-                               onClose={this.hideModalConfirmAccountDeletion}
-                               DialogTitle={"Account deletion"}
-                               DialogContent={`This account, and all of the data associated with it, will be deleted. 
+                <ConfirmDialog open={isModalConfirmAccountDeletionShowed}
+                    onClose={hideModalConfirmAccountDeletion}
+                    DialogTitleProp={"Account deletion"}
+                    DialogContentProp={`This account, and all of the data associated with it, will be deleted. 
                                This action is irreversible. Are you sure you want to proceed?`}
-                               onClickCancel={this.hideModalConfirmAccountDeletion}
-                               onClickConfirm={this.deleteAccount}/>
-            </main>
+                    onClickCancel={hideModalConfirmAccountDeletion}
+                    onClickConfirm={deleteAccount} />
+            </React.Fragment>
         )
     }
+    return (
+        <main>
+            <NavBar create={showModalCreate} logout={logout}
+                deleteAccount={showModalConfirmAccountDeletion} />
+            <Container>
+                {
+                    boards.map((board) => {
+                        const { id, name } = board
+                        const toProps = {
+                            pathname: "/board/" + id
+                        };
+                        return (
+                            <Board key={id}>
+                                <Link to={toProps}>
+                                    {name}
+                                </Link>
+                                <Icon style={{ marginLeft: 8, cursor: "pointer" }}
+                                    onClick={() => showModalUpdate(id, name)}>edit</Icon>
+                                <Icon style={{ marginLeft: 8, cursor: "pointer" }}
+                                    onClick={() => showModalConfirmBoardDeletion(id)}>delete</Icon>
+                            </Board>
+                        )
+                    })
+                }
+            </Container>
+            <Modal onHide={hideModalCreate} show={isModalCreateShowed} size="sm"
+                aria-labelledby="contained-modal-title-vcenter" centered>
+                <form className="form" onSubmit={handleSubmitSave(saveBoard)}>
+                    <Modal.Body style={{ width: "600px" }}>
+                        <Input
+                            type="text"
+                            name="newBoardName"
+                            placeholder="Enter board name..."
+                            inputProps={{ "aria-label": "description" }}
+                            {...registerSave("newBoardName", { required: true })}
+                        />
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" type="submit">Submit</Button>
+                        <Button variant="secondary" onClick={hideModalCreate}>Close</Button>
+                    </Modal.Footer>
+                </form>
+            </Modal>
+            <Modal onHide={hideModalUpdate} show={isModalUpdateShowed}
+                aria-labelledby="contained-modal-title-vcenter" centered>
+                <form className="form" onSubmit={handleSubmitEdit(updateBoard)}>
+                    <Modal.Body style={{ width: "600px" }}>
+                        <Input
+                            type="text"
+                            name="editBoardName"
+                            placeholder="Enter board name..."
+                            inputProps={{ "aria-label": "description" }}
+                            {...registerEdit("editBoardName", { required: true })}
+                        />
+                        <br />
+                        <Input
+                            type="text"
+                            name="editBoardUsername"
+                            placeholder="Enter username to add to the board..."
+                            inputProps={{ "aria-label": "description", maxLength: 30 }}
+                            style={{ width: "18.750em" }}
+                            {...registerEdit("editBoardUsername")}
+                        />
+                        <Button style={{ marginLeft: "10px", marginRight: "10px", verticalAlign: "inherit" }}
+                            variant="success" onClick={handleSubmitEdit(addUserToBoard)}>ADD</Button>
+                        <Button style={{ marginRight: "10px", verticalAlign: "inherit" }} variant="danger"
+                            onClick={handleSubmitEdit(removeUserFromBoard)}>REMOVE</Button>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" type="submit">Submit</Button>
+                        <Button variant="secondary" onClick={hideModalUpdate}>Close</Button>
+                    </Modal.Footer>
+                </form>
+            </Modal>
+            <Snackbar
+                open={isSnackbarUserAddingSuccessful}
+                autoHideDuration={4000}
+                onClose={() => setStateSnackbarUserAddingSuccessful(false)}
+                message="Adding successful." />
+            <Snackbar
+                open={isSnackbarUserRemovingSuccessful}
+                autoHideDuration={4000}
+                onClose={() => setStateSnackbarUserRemovingSuccessful(false)}
+                message="Removing successful." />
+            <Snackbar
+                open={isSnackbarUserNotFoundShowed}
+                autoHideDuration={4000}
+                onClose={() => setStateSnackbarUserNotFound(false)}
+                message="User not found." />
+            <ConfirmDialog open={isModalConfirmBoardDeletionShowed}
+                onClose={hideModalConfirmBoardDeletion}
+                DialogTitleProp={"Board deletion"}
+                DialogContentProp={"Are you sure you want to delete this board?"}
+                onClickCancel={hideModalConfirmBoardDeletion}
+                onClickConfirm={() => deleteBoard(deleteBoardId)} />
+            <ConfirmDialog open={isModalConfirmAccountDeletionShowed}
+                onClose={hideModalConfirmAccountDeletion}
+                DialogTitleProp={"Account deletion"}
+                DialogContentProp={`This account, and all of the data associated with it, will be deleted. 
+                               This action is irreversible. Are you sure you want to proceed?`}
+                onClickCancel={hideModalConfirmAccountDeletion}
+                onClickConfirm={deleteAccount} />
+        </main >
+    )
 }
-
-export default Boards;

@@ -1,9 +1,10 @@
-import React from "react"
+import React, { useState } from "react";
 import styled from "styled-components"
-import {Draggable, Droppable} from "react-beautiful-dnd"
+import { Draggable, Droppable } from "react-beautiful-dnd"
+import { useForm } from "react-hook-form";
 import Card from "../card/Card";
 import BtnAdd from "../btnAdd/BtnAdd";
-import {Input} from "@material-ui/core";
+import { Input } from "@mui/material";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
@@ -31,121 +32,109 @@ const CardList = styled.div`
   min-height: 6.250em;
 `;
 
-class Column extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            newColumnName: this.props.column.name,
-            isModalShowed: false,
-            isConfirmDialogShowed: false
-        };
-    }
+export default function Column({ key, column, cards, index, updateColumn, deleteColumn, saveCard, updateCard, deleteCard }) {
+    const [newColumnName, setColumnName] = useState(column.name);
+    const [isModalShowed, setIsModalShowed] = useState(false);
+    const [isConfirmDialogShowed, setIsConfirmDialogShowed] = useState(false);
 
-    changeModalState = (isModalShowed, isConfirmDialogShowed) => {
-        this.setState({
-            newColumnName: this.props.column.name,
-            isModalShowed: isModalShowed,
-            isConfirmDialogShowed: isConfirmDialogShowed
-        })
+    const {
+        register,
+        handleSubmit,
+        setValue
+    } = useForm();
+
+    const changeModalState = (isModalShowed, isConfirmDialogShowed) => {
+        setIsModalShowed(isModalShowed);
+        setIsConfirmDialogShowed(isConfirmDialogShowed);
     };
 
-    showModal = () => {
-        this.changeModalState(true, false)
+    const showModal = () => {
+        changeModalState(true, false)
+        setValue("newColumnName", column.name);
     };
 
-    hideModal = () => {
-        this.changeModalState(false, false)
+    const hideModal = () => {
+        changeModalState(false, false)
     };
 
-    showConfirmDialog = () => {
-        this.changeModalState(true, true)
+    const showConfirmDialog = () => {
+        changeModalState(true, true)
     };
 
-    hideConfirmDialog = () => {
-        this.changeModalState(true, false)
+    const hideConfirmDialog = () => {
+        changeModalState(true, false)
     };
 
-    handleChange = (event) => {
-        const {name, value} = event.target;
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                [name]: value
-            }
-        });
-    }
-
-    handleSubmit = () => {
-        if (!this.state.newColumnName || this.state.newColumnName.length === 0) {
+    const submit = (formData) => {
+        if (!formData.newColumnName || formData.newColumnName.length === 0) {
             alert("Please enter column name.");
             return;
         }
-        this.props.updateColumn(this.props.column.id, this.state.newColumnName);
-        this.hideModal()
+        updateColumn(column.id, formData.newColumnName);
+        hideModal()
     }
 
-    handleDeletion = () => {
-        this.props.deleteColumn(this.props.column.id);
+    const handleDeletion = () => {
+        deleteColumn(column.id);
     };
 
-    render() {
-        return (
-            <React.Fragment>
-                <Draggable draggableId={this.props.column.id} index={this.props.index}>
-                    {provided => (
-                        <Container {...provided.draggableProps} ref={provided.innerRef}>
-                            <Title {...provided.dragHandleProps} onClick={this.showModal}>
-                                <div style={{wordBreak: "break-all"}}>
-                                    {this.props.column.name}
-                                </div>
-                            </Title>
-                            <Droppable droppableId={this.props.column.id} type="card">
-                                {(provided, snapshot) => (
-                                    <CardList
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
-                                        isDraggingOver={snapshot.isDraggingOver}>
+    return (
+        <React.Fragment>
+            <Draggable draggableId={column.id} index={index}>
+                {provided => (
+                    <Container {...provided.draggableProps} ref={provided.innerRef}>
+                        <Title {...provided.dragHandleProps} onClick={showModal}>
+                            <div style={{ wordBreak: "break-all" }}>
+                                {column.name}
+                            </div>
+                        </Title>
+                        <Droppable droppableId={column.id} type="card">
+                            {(provided, snapshot) => (
+                                <CardList
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    isDraggingOver={snapshot.isDraggingOver}>
 
-                                        {this.props.cards.map((card, index) =>
-                                            <Card key={card.id}
-                                                  card={card}
-                                                  index={index}
-                                                  columnId={this.props.column.id}
-                                                  updateCard={this.props.updateCard}
-                                                  deleteCard={this.props.deleteCard}/>)}
-                                        {provided.placeholder}
-                                    </CardList>
-                                )}
-                            </Droppable>
-                            <BtnAdd columnId={this.props.column.id} saveCard={this.props.saveCard}/>
-                        </Container>
-                    )}
-                </Draggable>
-                <Modal onHide={this.hideModal} show={this.state.isModalShowed}
-                       aria-labelledby="contained-modal-title-vcenter" centered>
+                                    {cards.map((card, index) =>
+                                        <Card key={card.id}
+                                            card={card}
+                                            index={index}
+                                            columnId={column.id}
+                                            updateCard={updateCard}
+                                            deleteCard={deleteCard} />)}
+                                    {provided.placeholder}
+                                </CardList>
+                            )}
+                        </Droppable>
+                        <BtnAdd columnId={column.id} saveCard={saveCard} />
+                    </Container>
+                )}
+            </Draggable>
+            <Modal onHide={hideModal} show={isModalShowed}
+                aria-labelledby="contained-modal-title-vcenter" centered>
+                <form className="form" onSubmit={handleSubmit(submit)}>
                     <Modal.Body>
-                        <Input value={this.state.newColumnName}
-                               name="newColumnName"
-                               placeholder="Enter column name..."
-                               inputProps={{"aria-label": "description", maxLength: 30}}
-                               style={{width: "100%"}}
-                               onChange={this.handleChange}/>
+                        <Input
+                            name="newColumnName"
+                            placeholder="Enter column name..."
+                            inputProps={{ "aria-label": "description", maxLength: 30 }}
+                            style={{ width: "100%" }}
+                            {...register("newColumnName", { required: true })}
+                        />
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="primary" onClick={this.handleSubmit}>Submit</Button>
-                        <Button variant="secondary" onClick={this.hideModal}>Close</Button>
-                        <Button variant="danger" onClick={this.showConfirmDialog}>DELETE COLUMN</Button>
+                        <Button variant="primary" type="submit">Submit</Button>
+                        <Button variant="secondary" onClick={hideModal}>Close</Button>
+                        <Button variant="danger" onClick={showConfirmDialog}>DELETE COLUMN</Button>
                     </Modal.Footer>
-                </Modal>
-                <ConfirmDialog open={this.state.isConfirmDialogShowed}
-                               onClose={this.hideConfirmDialog}
-                               DialogTitle={"Column Deletion"}
-                               DialogContent={"re you sure you want to delete this column?"}
-                               onClickCancel={this.hideConfirmDialog}
-                               onClickConfirm={this.handleDeletion}/>
-            </React.Fragment>
-        );
-    }
+                </form>
+            </Modal>
+            <ConfirmDialog open={isConfirmDialogShowed}
+                onClose={hideConfirmDialog}
+                DialogTitleProp={"Column Deletion"}
+                DialogContentProp={"re you sure you want to delete this column?"}
+                onClickCancel={hideConfirmDialog}
+                onClickConfirm={handleDeletion} />
+        </React.Fragment>
+    );
 }
-
-export default Column;

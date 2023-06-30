@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Redirect, Route, Switch} from "react-router-dom"
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom"
 import React from "react";
 import Login from "../auth/Login";
 import AuthService from "../../service/AuthService";
@@ -9,32 +9,63 @@ import Board from "../board/Board";
 const AppRouter = () => {
     return (
         <Router>
-            <Switch>
-                <PrivateRouteLoggedIn path="/" exact component={Login}/>
-                <PrivateRoute path="/boards" exact component={Boards}/>
-                <PrivateRoute path="/board/:id" exact component={Board}/>
-                <Route path="/register" exact component={Register}/>
-            </Switch>
+            <Routes>
+                <Route path="/" exact element={<PrivateRouteLoggedIn>
+                    <Login />
+                </PrivateRouteLoggedIn>} />
+                <Route path="/boards" exact element={<PrivateRoute>
+                    <Boards />
+                </PrivateRoute>} />
+                <Route path="/board/:id" exact element={<PrivateRoute>
+                    <Board />
+                </PrivateRoute>} />
+                <Route path="/register" exact element={<Register />} />
+            </Routes>
         </Router>
     )
 };
 
-const PrivateRoute = ({component: Component, ...rest}) => (
-    <Route {...rest} render={
-        props => AuthService.getUserInfo() ?
-            (<Component {...props}/>) :
-            (<Redirect to={{pathname: "/"}}/>)
-    }
-    />
-);
+// const PrivateRoute = ({component: Component, ...rest}) => (
+//     <Route {...rest} render={
+//         props => AuthService.getUserInfo() ?
+//             (<Component {...props}/>) :
+//             (<Navigate to={{pathname: "/"}}/>)
+//     }
+//     />
+// );
 
-const PrivateRouteLoggedIn = ({component: Component, ...rest}) => (
-    <Route {...rest} render={
-        props => !AuthService.getUserInfo() ?
-            (<Component {...props}/>) :
-            (<Redirect to={{pathname: "/boards"}}/>)
+const PrivateRoute = ({ children }) => {
+    const userInfo = AuthService.getUserInfo();
+
+    if (userInfo === null) {
+        return <Navigate to="/" replace />
     }
-    />
-);
+
+    return children;
+}
+
+const PrivateRouteLoggedIn = ({ children }) => {
+    const userInfo = AuthService.getUserInfo();
+
+    if (userInfo !== null) {
+        return <Navigate to="/boards" replace />
+    }
+
+    return children;
+}
+
+
+// const PrivateRouteLoggedIn = ({element: Element, ...rest}) => (
+//     <Route 
+//         {...rest} 
+//         element={
+//             !AuthService.getUserInfo('roomCode') ? (
+//             <Navigate to="/room" replace />
+//             ) : (
+//             <Element />
+//             )
+//         }
+//     />
+// );
 
 export default AppRouter;

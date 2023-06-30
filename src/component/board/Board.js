@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
-import {DragDropContext, Droppable} from "react-beautiful-dnd";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Column from "../column/Column";
 import ColumnService from "../../service/ColumnService"
 import BtnAdd from "../btnAdd/BtnAdd";
@@ -14,26 +15,21 @@ const Container = styled.div`
   display: flex;
 `;
 
-class Board extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            columns: {},
-            cards: {},
-            columnOrder: {},
-            boardName: ""
-        };
-        this.modalState = {
-            isModalConfirmAccountDeletionShowed: false
-        };
-    }
+export default function Board({ props }) {
+    const navigate = useNavigate();
+    const [key, setKey] = useState(window.location.pathname.split("/")[2])
+    const [columns, setColumns] = useState({});
+    const [cards, setCards] = useState({});
+    const [columnOrder, setColumnOrder] = useState({});
+    const [boardName, setBoardName] = useState("");
+    const [isModalConfirmAccountDeletionShowed, setIsModalConfirmAccountDeletionShowed] = useState(false);
 
-    componentDidMount() {
-        this.makeRequest(ColumnService.getColumnById, this.props.match.params.id)
-    }
+    useEffect(() => {
+        makeRequest(ColumnService.getColumnById, key)
+    }, [])
 
-    onDragEnd = result => {
-        const {destination, source, draggableId, type} = result;
+    const onDragEnd = result => {
+        const { destination, source, draggableId, type } = result;
 
         if (!destination) {
             return;
@@ -47,25 +43,21 @@ class Board extends React.Component {
         }
 
         if (type === "column") {
-            const newColumnOrder = Array.from(this.state.columnOrder);
+            const newColumnOrder = Array.from(columnOrder);
             newColumnOrder.splice(source.index, 1);
             newColumnOrder.splice(destination.index, 0, draggableId);
 
-            const newState = {
-                ...this.state,
-                columnOrder: newColumnOrder,
-            };
-            this.setState(newState);
+            setColumnOrder(newColumnOrder)
 
             ColumnService.saveColumnOrder({
-                boardId: this.props.match.params.id,
+                boardId: key,
                 columnOrder: newColumnOrder
             }).then();
             return;
         }
 
-        const start = this.state.columns[source.droppableId];
-        const finish = this.state.columns[destination.droppableId];
+        const start = columns[source.droppableId];
+        const finish = columns[destination.droppableId];
         const newCardIds = Array.from(start.cards);
         newCardIds.splice(source.index, 1);
         newCardIds.splice(destination.index, 0, draggableId);
@@ -77,15 +69,11 @@ class Board extends React.Component {
                 cards: newCardIds
             };
 
-            const newState = {
-                ...this.state,
-                columns: {
-                    ...this.state.columns,
-                    [newColumn.id]: newColumn,
-                },
-            };
+            setColumns({
+                ...columns,
+                [newColumn.id]: newColumn
+            });
 
-            this.setState(newState);
             return;
         }
 
@@ -104,170 +92,159 @@ class Board extends React.Component {
         };
 
         const newState = {
-            ...this.state,
-            columns: {
-                ...this.state.columns,
-                [newStart.id]: newStart,
-                [newFinish.id]: newFinish,
-            },
+            ...columns,
+            [newStart.id]: newStart,
+            [newFinish.id]: newFinish,
         };
 
-        this.setState(newState);
-        ColumnService.saveCardToColumn(newState.columns).then();
+        setColumns(newState);
+        ColumnService.saveCardToColumn(newState).then();
     };
 
-    updateState = (response) => {
-        this.setState({
-            columns: response.data[0].columns,
-            cards: response.data[1].cards,
-            columnOrder: response.data[2].columnOrder,
-            boardName: response.data[3]
-        });
+    const updateState = (response) => {
+        setColumns(response.data[0].columns);
+        setCards(response.data[1].cards);
+        setColumnOrder(response.data[2].columnOrder);
+        setBoardName(response.data[3]);
     };
 
-    changeModalState = (isModalConfirmAccountDeletionShowed) => {
-        this.setState(this.modalState = {
-            isModalConfirmAccountDeletionShowed: isModalConfirmAccountDeletionShowed
-        })
+    const changeModalState = (isModalConfirmAccountDeletionShowed) => {
+        setIsModalConfirmAccountDeletionShowed(isModalConfirmAccountDeletionShowed);
     };
 
-    showModalConfirmAccountDeletion = () => {
-        this.changeModalState(true)
+    const showModalConfirmAccountDeletion = () => {
+        changeModalState(true)
     };
 
-    hideModalConfirmAccountDeletion = () => {
-        this.changeModalState(false)
+    const hideModalConfirmAccountDeletion = () => {
+        changeModalState(false)
     };
 
-    makeRequest = (methodToCall, data) => {
+    const makeRequest = (methodToCall, data) => {
         methodToCall(data).then(response => {
-            this.handleResponse(response)
+            handleResponse(response)
         }).catch(error => {
-            this.handleError(error)
+            handleError(error)
         });
     }
 
-    handleResponse = (response) => {
+    const handleResponse = (response) => {
         if (response.status === 200 || response.status === 201) {
-            this.updateState(response)
+            updateState(response)
         }
     };
 
-    handleError = (error) => {
+    const handleError = (error) => {
         if (error.response.status === 401) {
             localStorage.clear(); // Prevent infinite loop
-            this.props.history.push("");
+            navigate("/");
         }
     };
 
-    saveColumn = (columnName) => {
+    const saveColumn = (columnName) => {
         const data = {
-            boardId: this.props.match.params.id,
+            boardId: key,
             columnName: columnName
         }
-        this.makeRequest(ColumnService.saveColumn, data)
+        makeRequest(ColumnService.saveColumn, data)
     };
 
-    updateColumn = (columnId, columnName) => {
+    const updateColumn = (columnId, columnName) => {
         const data = {
-            boardId: this.props.match.params.id,
+            boardId: key,
             columnId: columnId,
             columnName: columnName
         }
-        this.makeRequest(ColumnService.updateColumn, data)
+        makeRequest(ColumnService.updateColumn, data)
     };
 
-    deleteColumn = (columnId) => {
+    const deleteColumn = (columnId) => {
         const data = {
-            boardId: this.props.match.params.id,
+            boardId: key,
             columnId: columnId
         }
-        this.makeRequest(ColumnService.deleteColumn, data)
+        makeRequest(ColumnService.deleteColumn, data)
     };
 
-    saveCard = (columnId, cardName) => {
+    const saveCard = (columnId, cardName) => {
         const data = {
-            boardId: this.props.match.params.id,
+            boardId: key,
             columnId: columnId,
             cardName: cardName
         }
-        this.makeRequest(CardService.saveCard, data)
+        makeRequest(CardService.saveCard, data)
     };
 
-    updateCard = (cardName, cardId) => {
+    const updateCard = (cardName, cardId) => {
         const data = {
-            boardId: this.props.match.params.id,
+            boardId: key,
             cardId: cardId,
             cardName: cardName
         }
-        this.makeRequest(CardService.updateCard, data)
+        makeRequest(CardService.updateCard, data)
     };
 
-    deleteCard = (cardId) => {
+    const deleteCard = (cardId) => {
         const data = {
-            boardId: this.props.match.params.id,
+            boardId: key,
             cardId: cardId
         }
-        this.makeRequest(CardService.deleteCard, data)
+        makeRequest(CardService.deleteCard, data)
     };
 
-    deleteAccount = () => {
+    const deleteAccount = () => {
         UserService.deleteUser({
             username: AuthService.getUsername()
         }).then(() => {
             localStorage.clear(); // Prevent infinite loop
-            this.props.history.push("");
+            navigate("/");
         });
     };
 
-    logout = () => {
+    const logout = () => {
         localStorage.removeItem("userInfo");
-        this.props.history.push("");
+        navigate("/");
     };
 
-    dashboard = () => {
-        this.props.history.push("");
+    const dashboard = () => {
+        navigate("/");
     }
 
-    render() {
-        if (Object.entries(this.state.columnOrder).length === 0 && this.state.columnOrder.constructor === Object) {
-            return <React.Fragment/>
-        }
-        return (
-            <React.Fragment>
-                <NavBar boardName={this.state.boardName} dashboard={this.dashboard} logout={this.logout}
-                        deleteAccount={this.showModalConfirmAccountDeletion}/>
-                <DragDropContext onDragStart={this.onDragStart} onDragEnd={this.onDragEnd}>
-                    <Droppable droppableId="all-columns" direction="horizontal" type="column">
-                        {provided => (
-                            <Container {...provided.droppableProps} ref={provided.innerRef}>
-                                {this.state.columnOrder.map((columnId, index) => {
-                                    const column = this.state.columns[columnId];
-                                    const cards = column.cards.map(cardId => this.state.cards[cardId]);
-
-                                    return <Column key={column.id} column={column} cards={cards} index={index}
-                                                   updateColumn={this.updateColumn}
-                                                   deleteColumn={this.deleteColumn}
-                                                   saveCard={this.saveCard}
-                                                   updateCard={this.updateCard}
-                                                   deleteCard={this.deleteCard}/>
-                                })}
-                                {provided.placeholder}
-                                <BtnAdd column saveColumn={this.saveColumn} saveCard={this.saveCard}/>
-                            </Container>
-                        )}
-                    </Droppable>
-                </DragDropContext>
-                <ConfirmDialog open={this.modalState.isModalConfirmAccountDeletionShowed}
-                               onClose={this.hideModalConfirmAccountDeletion}
-                               DialogTitle={"Account deletion"}
-                               DialogContent={`This account, and all of the data associated with it, will be deleted. 
-                               This action is irreversible. Are you sure you want to proceed?`}
-                               onClickCancel={this.hideModalConfirmAccountDeletion}
-                               onClickConfirm={this.deleteAccount}/>
-            </React.Fragment>
-        );
+    if (Object.entries(columnOrder).length === 0 && columnOrder.constructor === Object) {
+        return <React.Fragment />
     }
+    return (
+        <React.Fragment>
+            <NavBar boardName={boardName} dashboard={dashboard} logout={logout}
+                deleteAccount={showModalConfirmAccountDeletion} />
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="all-columns" direction="horizontal" type="column">
+                    {provided => (
+                        <Container {...provided.droppableProps} ref={provided.innerRef}>
+                            {columnOrder.map((columnId, index) => {
+                                const column = columns[columnId];
+                                const mappedCards = column.cards.map(cardId => cards[cardId]);
+
+                                return <Column key={column.id} column={column} cards={mappedCards} index={index}
+                                    updateColumn={updateColumn}
+                                    deleteColumn={deleteColumn}
+                                    saveCard={saveCard}
+                                    updateCard={updateCard}
+                                    deleteCard={deleteCard} />
+                            })}
+                            {provided.placeholder}
+                            <BtnAdd column saveColumn={saveColumn} saveCard={saveCard} />
+                        </Container>
+                    )}
+                </Droppable>
+            </DragDropContext>
+            <ConfirmDialog open={isModalConfirmAccountDeletionShowed}
+                onClose={hideModalConfirmAccountDeletion}
+                DialogTitleProp={"Account deletion"}
+                DialogContentProp={`This account, and all of the data associated with it, will be deleted. 
+                           This action is irreversible. Are you sure you want to proceed?`}
+                onClickCancel={hideModalConfirmAccountDeletion}
+                onClickConfirm={deleteAccount} />
+        </React.Fragment>
+    );
 }
-
-export default Board;

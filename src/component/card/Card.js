@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useState } from "react";
 import styled from "styled-components"
-import {Draggable} from "react-beautiful-dnd"
-import {Input} from "@material-ui/core";
+import { useForm } from "react-hook-form";
+import { Draggable } from "react-beautiful-dnd"
+import { Input } from "@mui/material";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import "react-bootstrap";
@@ -16,87 +17,76 @@ const Container = styled.div`
   word-break: break-all;
 `;
 
-class Card extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isModalShowed: false,
-            newCardName: this.props.card.name
-        };
-    }
+export default function Card({ key, card, index, columnId, updateCard, deleteCard }) {
+    const [isModalShowed, setIsModalShowed] = useState(false);
+    const [newCardName, setNewCardName] = useState(card.name);
 
-    changeModalState = (isModalShowed) => {
-        this.setState({
-            isModalShowed: isModalShowed,
-            newCardName: this.props.card.name
-        })
+    const {
+        register,
+        handleSubmit,
+        setValue
+    } = useForm();
+
+    const changeModalState = (isModalShowed) => {
+        setIsModalShowed(isModalShowed);
     };
 
-    showModal = () => {
-        this.changeModalState(true)
+    const showModal = () => {
+        changeModalState(true);
+        setValue("newCardName", card.name);
     };
 
-    hideModal = () => {
-        this.changeModalState(false)
+    const hideModal = () => {
+        changeModalState(false);
     };
 
-    handleChange = (event) => {
-        const {name, value} = event.target;
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                [name]: value
-            }
-        });
-    }
-
-    handleSubmit = () => {
-        if (!this.state.newCardName || this.state.newCardName.length === 0) {
+    const submit = (formData) => {
+        if (!newCardName || newCardName.length === 0) {
             alert("Please enter card name.");
             return
         }
-        this.props.updateCard(this.state.newCardName, this.props.card.id);
-        this.hideModal()
+        updateCard(formData.newCardName, card.id);
+        hideModal();
     }
 
-    handleDeletion = () => {
-        this.props.deleteCard(this.props.card.id);
-        this.hideModal()
+    const handleDeletion = () => {
+        deleteCard(card.id);
+        hideModal();
     };
 
-    render() {
-        return (
-            <React.Fragment>
-                <Draggable draggableId={this.props.card.id} index={this.props.index}>
-                    {(provided, snapshot) => (
-                        <Container
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            ref={provided.innerRef}
-                            isDragging={snapshot.isDragging}
-                            onClick={this.showModal}>
-                            {this.props.card.name}
-                        </Container>
-                    )}
-                </Draggable>
-                <Modal onHide={this.hideModal} show={this.state.isModalShowed} centered>
+    return (
+        <React.Fragment>
+            <Draggable draggableId={card.id} index={index}>
+                {(provided, snapshot) => (
+                    <Container
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                        isDragging={snapshot.isDragging}
+                        onClick={showModal}>
+                        {card.name}
+                    </Container>
+                )}
+            </Draggable>
+            <Modal onHide={hideModal} show={isModalShowed} centered>
+                <form className="form" onSubmit={handleSubmit(submit)}>
                     <Modal.Body>
-                        <Input value={this.state.newCardName}
-                               name="newCardName"
-                               placeholder="Enter card name..."
-                               inputProps={{"aria-label": "description", maxLength: 30}}
-                               style={{width: "100%"}}
-                               onChange={this.handleChange}/>
+                        <Input
+                            type="text"
+                            name="newCardName"
+                            placeholder="Enter card name..."
+                            inputProps={{ "aria-label": "description", maxLength: 30 }}
+                            style={{ width: "100%" }}
+                            {...register("newCardName", { required: true })}
+                        />
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="primary" onClick={this.handleSubmit}>Submit</Button>
-                        <Button variant="secondary" onClick={this.hideModal}>Close</Button>
-                        <Button variant="danger" onClick={this.handleDeletion}>DELETE CARD</Button>
+                        <Button variant="primary" type="submit">Submit</Button>
+                        <Button variant="secondary" onClick={hideModal}>Close</Button>
+                        <Button variant="danger" onClick={handleDeletion}>DELETE CARD</Button>
                     </Modal.Footer>
-                </Modal>
-            </React.Fragment>
-        );
-    }
+                </form>
+            </Modal>
+        </React.Fragment>
+    );
 }
-
-export default Card;

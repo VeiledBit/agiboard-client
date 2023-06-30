@@ -1,0 +1,11 @@
+.error {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 32em;
+    margin: auto;
+    z-index: 1;
+    color: red;
+    width: fit-content;
+    user-select: none;
+}
