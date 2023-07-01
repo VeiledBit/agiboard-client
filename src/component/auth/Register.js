@@ -12,6 +12,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Snackbar from "@mui/material/Snackbar";
+import styles from "./Register.module.css";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -66,7 +67,7 @@ export default function Register() {
                 </Toolbar>
             </AppBar>
             <Container maxWidth="sm">
-                <Typography variant="h4" style={styles.center}>Register</Typography>
+                <Typography variant="h4" className={styles.center}>Register</Typography>
                 <form className="form" onSubmit={handleSubmit(registerUser)}>
                     <Input
                         type="text"
@@ -164,16 +165,3 @@ export default function Register() {
         </React.Fragment>
     );
 }
-
-const styles = {
-    center: {
-        display: "flex",
-        justifyContent: "center",
-        paddingTop: "1em"
-    },
-    notification: {
-        display: "flex",
-        justifyContent: "center",
-        color: "#dc3545"
-    }
-};

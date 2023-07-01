@@ -1,0 +1,13 @@
+.board {
+    border: 0.063em solid lightgrey;
+    border-radius: 0.125em;
+    padding: 0.500em;
+    margin-bottom: 0.500em;
+    display: flex;
+    margin-left: 0.313em
+}
+
+.container {
+    padding: 1em;
+    display: flex;
+}

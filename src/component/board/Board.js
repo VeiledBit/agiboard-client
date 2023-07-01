@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import styled from "styled-components";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Column from "../column/Column";
 import ColumnService from "../../service/ColumnService"
@@ -10,10 +9,7 @@ import NavBar from "../navBar/NavBar";
 import UserService from "../../service/UserService";
 import AuthService from "../../service/AuthService";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
-
-const Container = styled.div`
-  display: flex;
-`;
+import styles from "./Board.module.css";
 
 export default function Board({ props }) {
     const navigate = useNavigate();
@@ -220,7 +216,7 @@ export default function Board({ props }) {
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="all-columns" direction="horizontal" type="column">
                     {provided => (
-                        <Container {...provided.droppableProps} ref={provided.innerRef}>
+                        <div className={styles.container} {...provided.droppableProps} ref={provided.innerRef} >
                             {columnOrder.map((columnId, index) => {
                                 const column = columns[columnId];
                                 const mappedCards = column.cards.map(cardId => cards[cardId]);
@@ -234,7 +230,7 @@ export default function Board({ props }) {
                             })}
                             {provided.placeholder}
                             <BtnAdd column saveColumn={saveColumn} saveCard={saveCard} />
-                        </Container>
+                        </div>
                     )}
                 </Droppable>
             </DragDropContext>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import styled from "styled-components"
 import { useForm } from "react-hook-form";
 import BoardService from "../../service/BoardService";
 import AuthService from "../../service/AuthService";
@@ -13,20 +12,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { Icon, Input } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
-
-const Board = styled.div`
-  border: 0.063em solid lightgrey;
-  border-radius: 0.125em;
-  padding: 0.500em;
-  margin-bottom: 0.500em;
-  display: flex;
-  margin-left: 0.313em
-`;
-
-const Container = styled.div`
-  padding: 1em;
-  display: flex;
-`;
+import styles from "./Boards.module.css";
 
 export default function Boards() {
     const navigate = useNavigate();
@@ -323,7 +309,7 @@ export default function Boards() {
         <main>
             <NavBar create={showModalCreate} logout={logout}
                 deleteAccount={showModalConfirmAccountDeletion} />
-            <Container>
+            <div className={styles.container}>
                 {
                     boards.map((board) => {
                         const { id, name } = board
@@ -331,7 +317,7 @@ export default function Boards() {
                             pathname: "/board/" + id
                         };
                         return (
-                            <Board key={id}>
+                            <div className={styles.board} key={id}>
                                 <Link to={toProps}>
                                     {name}
                                 </Link>
@@ -339,11 +325,11 @@ export default function Boards() {
                                     onClick={() => showModalUpdate(id, name)}>edit</Icon>
                                 <Icon style={{ marginLeft: 8, cursor: "pointer" }}
                                     onClick={() => showModalConfirmBoardDeletion(id)}>delete</Icon>
-                            </Board>
+                            </div>
                         )
                     })
                 }
-            </Container>
+            </div>
             <Modal onHide={hideModalCreate} show={isModalCreateShowed} size="sm"
                 aria-labelledby="contained-modal-title-vcenter" centered>
                 <form className="form" onSubmit={handleSubmitSave(saveBoard)}>

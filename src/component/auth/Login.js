@@ -4,7 +4,6 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import Input from '@mui/material/Input';
 import AuthService from "../../service/AuthService";
 import { useForm } from "react-hook-form";
@@ -13,7 +12,8 @@ import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Snackbar from "@mui/material/Snackbar";
 import { CircularProgress } from "@mui/material";
-import "./login.css"
+import styles from "./Login.module.css";
+import stylesNavBar from "./../navBar/NavBar.module.css";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -38,7 +38,6 @@ export default function Login() {
 
     const login = (formData) => {
         setIsSpinnerShowed(true);
-        console.log(styles.spinner.display)
         AuthService.login({
             username: formData.username,
             password: formData.password
@@ -63,7 +62,6 @@ export default function Login() {
     }
 
     const onClickRegister = () => {
-        console.log("clicking");
         navigate("/register");
     };
 
@@ -74,31 +72,34 @@ export default function Login() {
                     <Typography variant="h6" className="title">
                         Agiboard
                     </Typography>
-                    <div className="dropdownMaterial">
-                        <Button className="btnMaterial btnCreate" onClick={onClickRegister}>
+                    <div className={stylesNavBar.dropdownMaterial}>
+                        <Button className={`${stylesNavBar.btnMaterial} ${stylesNavBar.btnCreate}`} onClick={onClickRegister}>
                             REGISTER
                         </Button>
                     </div>
                 </Toolbar>
             </AppBar>
-            <Container maxWidth="sm">
-                <Typography variant="h4" style={styles.center}>Login</Typography>
-                <form className="form" onSubmit={handleSubmit(login)}>
+            <div className={styles.container}>
+                <h2 className={styles.title}>LOGIN</h2>
+                <form className={`${styles.container} ${styles.containerForm}`} onSubmit={handleSubmit(login)}>
                     <Input
+                        className={styles.username}
                         type="text"
                         name="username"
                         placeholder="Username"
                         maxLength="30"
-                        margin="normal"
                         {...register("username", { required: true, maxLength: 30 })}
+                        error={errors.username ? true : false}
                     />
                     <Input
+                        className={styles.password}
                         type={isPasswordShowed ? "text" : "password"}
                         name="password"
                         placeholder="Password"
                         maxLength="30"
                         margin="normal"
                         {...register("password", { required: true, maxLength: 30 })}
+                        error={errors.password ? true : false}
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
@@ -124,11 +125,11 @@ export default function Login() {
                     {errors.password?.type === "maxLength" && (
                         <span className="error">Maximum length is 30</span>
                     )}
-                    <button className="btn btnCreate" type="submit">
+                    <Button className={`${styles.btnLogin}`} type="submit" variant="contained">
                         Login
-                    </button>
+                    </Button>
                 </form>
-            </Container>
+            </div>
             <Snackbar
                 open={isSnackbarWrongCredentialsShowed}
                 autoHideDuration={4000}
@@ -139,25 +140,7 @@ export default function Login() {
                 autoHideDuration={5000}
                 onClose={() => setIsSnackBarTimeoutShowed(false)}
                 message="Backend services are hibernating, please wait a bit and try again." />
-            {isSpinnerShowed && <CircularProgress style={styles.spinner} />}
+            {isSpinnerShowed && <CircularProgress className={styles.spinner} />}
         </React.Fragment>
     )
 }
-
-const styles = {
-    center: {
-        display: "flex",
-        justifyContent: "center",
-        paddingTop: "1em"
-    },
-    notification: {
-        display: "flex",
-        justifyContent: "center",
-        color: "#dc3545"
-    },
-    spinner: {
-        position: "fixed",
-        left: "50%",
-        bottom: "40%"
-    }
-};

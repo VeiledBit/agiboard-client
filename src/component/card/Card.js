@@ -1,21 +1,11 @@
 import React, { useState } from "react";
-import styled from "styled-components"
 import { useForm } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd"
 import { Input } from "@mui/material";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import "react-bootstrap";
-
-const Container = styled.div`
-  border: 0.063em solid lightgrey;
-  border-radius: 0.125em;
-  padding: 0.500em;
-  margin-bottom: 0.500em;
-  background-color: ${props => (props.isDragging ? "lightgreen" : "white")};
-  display: flex;
-  word-break: break-all;
-`;
+import styles from "./Card.module.css";
 
 export default function Card({ key, card, index, columnId, updateCard, deleteCard }) {
     const [isModalShowed, setIsModalShowed] = useState(false);
@@ -58,14 +48,14 @@ export default function Card({ key, card, index, columnId, updateCard, deleteCar
         <React.Fragment>
             <Draggable draggableId={card.id} index={index}>
                 {(provided, snapshot) => (
-                    <Container
+                    <div className={styles.container}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         ref={provided.innerRef}
                         isDragging={snapshot.isDragging}
                         onClick={showModal}>
                         {card.name}
-                    </Container>
+                    </div>
                 )}
             </Draggable>
             <Modal onHide={hideModal} show={isModalShowed} centered>

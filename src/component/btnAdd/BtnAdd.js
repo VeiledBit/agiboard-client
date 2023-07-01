@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Card as MaterialCard, Icon } from "@mui/material";
 import Textarea from "react-textarea-autosize";
-import "./btnAdd.css"
+import styles from "./BtnAdd.module.css";
 
 export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
     const [name, setName] = useState("");
@@ -31,7 +31,7 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
 
         return (
             <div onClick={openForm}
-                className="openFormButtonGroup"
+                className={styles.openFormButtonGroup}
                 style={{ opacity: buttonTextOpacity, borderTop: buttonBorderTop, marginTop: buttonMarginTop }}>
                 <Icon style={{ marginRight: "5px", marginTop: "12px" }}>add</Icon>
                 <p>{buttonText}</p>
@@ -56,15 +56,15 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
         return (
             <div style={{ marginTop: "0.500em" }}>
                 <form className="form" onSubmit={handleSubmit(handleSaving)}>
-                    <MaterialCard className="materialCard">
-                        <Textarea className="materialCard textArea"
+                    <MaterialCard className={styles.materialCard}>
+                        <Textarea className={`${styles.materialCard} ${styles.textArea} `}
                             placeholder={placeholder}
                             autoFocus
                             maxLength="50"
                             {...register("name", { required: true })}
                         />
                     </MaterialCard>
-                    <div className="formButtonGroup">
+                    <div className={styles.openFormButtonGroup}>
                         <Button
                             type="submit"
                             variant="contained"

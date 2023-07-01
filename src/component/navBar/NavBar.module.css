@@ -30,18 +30,19 @@
 
 .dropdownMaterial .btnCreate {
     padding: 0.875em 1em 0.875em 1em;
-    border-radius: 0;
+    border-radius: 0.125em;
 }
 
 .dropdownMaterial .btnDropMaterial {
     padding: 0.875em 5.4em 0.875em 0;
+    border-radius: 0.125em;
 }
 
 .navbar .btnMenuMaterial:hover, .dropdownMaterial:hover .btnDropMaterial, .dropdownMaterial:hover .btnCreate {
     background-color: red;
 }
 
-.dropdown-content-material {
+.dropdownContentMaterial {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
@@ -50,7 +51,7 @@
     z-index: 1;
 }
 
-.dropdown-content-material .btnMenuMaterial {
+.dropdownContentMaterial .btnMenuMaterial {
     float: none;
     color: black;
     padding: 0.750em 1em;
@@ -59,10 +60,10 @@
     text-align: left;
 }
 
-.dropdown-content-material .btnMenuMaterial:hover {
+.dropdownContentMaterial .btnMenuMaterial:hover {
     background-color: #ddd;
 }
 
-.dropdownMaterial:hover .dropdown-content-material {
+.dropdownMaterial:hover .dropdownContentMaterial {
     display: block;
 }

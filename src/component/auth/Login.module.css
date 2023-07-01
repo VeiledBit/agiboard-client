@@ -1,0 +1,70 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    padding-top: 1em;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+.containerForm {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+
+.title {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+}
+
+.username {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+    width: 35%;
+    margin-bottom: 1em;
+}
+
+.password {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+    width: 35%;
+    margin-bottom: 1em;
+}
+
+.btnLogin {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+}
+
+.notification {
+    display: "flex";
+    justify-content: "center";
+    color: "#dc3545";
+}
+
+.spinner {
+    position: "fixed";
+    left: "50%";
+    bottom: "40%";
+}
+
+.error {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 32em;
+    margin: auto;
+    z-index: 1;
+    color: red;
+    width: fit-content;
+    user-select: none;
+}

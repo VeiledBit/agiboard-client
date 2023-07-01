@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled from "styled-components"
 import { Draggable, Droppable } from "react-beautiful-dnd"
 import { useForm } from "react-hook-form";
 import Card from "../card/Card";
@@ -9,28 +8,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
 import "react-bootstrap";
-
-const Container = styled.div`
-  margin: 0.500em;
-  border: 0.063em solid lightgrey;
-  background-color: white;
-  border-radius: 0.125em;
-  width: 17em;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Title = styled.h3`
-  padding: 0.500em;
-`;
-
-const CardList = styled.div`
-  padding: 0.500em;
-  transition: background-color 0.2s ease;
-  background-color: ${props => (props.isDraggingOver ? "skyblue" : "inherit")}
-  flex-grow: 1;
-  min-height: 6.250em;
-`;
+import styles from "./Column.module.css";
 
 export default function Column({ key, column, cards, index, updateColumn, deleteColumn, saveCard, updateCard, deleteCard }) {
     const [newColumnName, setColumnName] = useState(column.name);
@@ -82,15 +60,15 @@ export default function Column({ key, column, cards, index, updateColumn, delete
         <React.Fragment>
             <Draggable draggableId={column.id} index={index}>
                 {provided => (
-                    <Container {...provided.draggableProps} ref={provided.innerRef}>
-                        <Title {...provided.dragHandleProps} onClick={showModal}>
+                    <div className={styles.container} {...provided.draggableProps} ref={provided.innerRef}>
+                        <h3 className={styles.title} {...provided.dragHandleProps} onClick={showModal}>
                             <div style={{ wordBreak: "break-all" }}>
                                 {column.name}
                             </div>
-                        </Title>
+                        </h3>
                         <Droppable droppableId={column.id} type="card">
                             {(provided, snapshot) => (
-                                <CardList
+                                <div className={styles.cardList}
                                     ref={provided.innerRef}
                                     {...provided.droppableProps}
                                     isDraggingOver={snapshot.isDraggingOver}>
@@ -103,11 +81,11 @@ export default function Column({ key, column, cards, index, updateColumn, delete
                                             updateCard={updateCard}
                                             deleteCard={deleteCard} />)}
                                     {provided.placeholder}
-                                </CardList>
+                                </div>
                             )}
                         </Droppable>
                         <BtnAdd columnId={column.id} saveCard={saveCard} />
-                    </Container>
+                    </div>
                 )}
             </Draggable>
             <Modal onHide={hideModal} show={isModalShowed}

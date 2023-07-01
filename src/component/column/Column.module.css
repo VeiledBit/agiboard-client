@@ -1,0 +1,20 @@
+.container {
+    margin: 0.500em;
+    border: 0.063em solid lightgrey;
+    background-color: white;
+    border-radius: 0.125em;
+    width: 17em;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    padding: 0.500em;
+}
+
+.cardList {
+    padding: 0.500em;
+    transition: background-color 0.2s ease;
+    flex-grow: 1;
+    min-height: 6.250em;
+}

@@ -25,15 +25,6 @@ const AppRouter = () => {
     )
 };
 
-// const PrivateRoute = ({component: Component, ...rest}) => (
-//     <Route {...rest} render={
-//         props => AuthService.getUserInfo() ?
-//             (<Component {...props}/>) :
-//             (<Navigate to={{pathname: "/"}}/>)
-//     }
-//     />
-// );
-
 const PrivateRoute = ({ children }) => {
     const userInfo = AuthService.getUserInfo();
 
@@ -53,19 +44,5 @@ const PrivateRouteLoggedIn = ({ children }) => {
 
     return children;
 }
-
-
-// const PrivateRouteLoggedIn = ({element: Element, ...rest}) => (
-//     <Route 
-//         {...rest} 
-//         element={
-//             !AuthService.getUserInfo('roomCode') ? (
-//             <Navigate to="/room" replace />
-//             ) : (
-//             <Element />
-//             )
-//         }
-//     />
-// );
 
 export default AppRouter;
