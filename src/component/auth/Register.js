@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import Input from '@mui/material/Input';
 import Button from "@mui/material/Button";
 import UserService from "../../service/UserService";
@@ -13,6 +12,7 @@ import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Snackbar from "@mui/material/Snackbar";
 import styles from "./Register.module.css";
+import stylesNavBar from "./../navBar/NavBar.module.css";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -56,20 +56,21 @@ export default function Register() {
         <React.Fragment>
             <AppBar position="static">
                 <Toolbar>
-                    <Typography variant="h6" className="title">
-                        Agiboard
+                    <Typography variant="h6" className={styles.title}>
+                        AGIBOARD
                     </Typography>
-                    <div className="dropdownMaterial">
-                        <Button className="btnMaterial btnCreate" onClick={() => navigate("/")}>
+                    <div>
+                        <Button className={`${stylesNavBar.btnMaterial} ${stylesNavBar.btnCreate}`} onClick={() => navigate("/")}>
                             LOGIN
                         </Button>
                     </div>
                 </Toolbar>
             </AppBar>
-            <Container maxWidth="sm">
-                <Typography variant="h4" className={styles.center}>Register</Typography>
-                <form className="form" onSubmit={handleSubmit(registerUser)}>
+            <div className={styles.container}>
+                <h2 className={styles.title}>REGISTER</h2>
+                <form className={`${styles.container} ${styles.containerForm}`} onSubmit={handleSubmit(registerUser)}>
                     <Input
+                        className={styles.username}
                         type="text"
                         name="username"
                         placeholder="Username"
@@ -78,6 +79,7 @@ export default function Register() {
                         {...register("username", { required: true, maxLength: 30 })}
                     />
                     <Input
+                        className={styles.password}
                         type={isPasswordShowed ? "text" : "password"}
                         name="password"
                         placeholder="Password"
@@ -98,6 +100,7 @@ export default function Register() {
                         }
                     />
                     <Input
+                        className={styles.password}
                         type={isPasswordRepeatShowed ? "text" : "password"}
                         name="passwordRepeat"
                         placeholder="Repeat Password"
@@ -118,6 +121,7 @@ export default function Register() {
                         }
                     />
                     <Input
+                        className={styles.name}
                         type="text"
                         name="name"
                         placeholder="Name"
@@ -149,9 +153,9 @@ export default function Register() {
                     {errors.name?.type === "maxLength" && (
                         <span className="error">Maximum length is 30</span>
                     )}
-                    <Button variant="contained" color="secondary" type="submit">Register</Button>
+                    <Button className={`${styles.btnRegister}`} variant="contained" type="submit">Register</Button>
                 </form>
-            </Container>
+            </div>
             <Snackbar
                 open={isSnackbarRegistrationSuccessfulShowed}
                 autoHideDuration={2000}

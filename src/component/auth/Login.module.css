@@ -18,9 +18,7 @@
 
 
 .title {
-    order: 0;
-    flex: 0 1 auto;
-    align-self: auto;
+    flex: 1;
 }
 
 .username {

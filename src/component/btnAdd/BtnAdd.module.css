@@ -1,3 +1,6 @@
+.buttonText {
+    margin-top: 2.5em;
+}
 .openFormButtonGroup {
     display: flex;
     align-items: center;
@@ -6,7 +9,9 @@
     height: 36px;
     padding-left: 10px;
     padding-bottom: 10px;
-    border-top: 1px solid lightgrey;
+    border-top: 1px solid grey;
+    margin-top: 2.5em;
+    margin-bottom: 0.7em;
 }
 
 .formButtonGroup {

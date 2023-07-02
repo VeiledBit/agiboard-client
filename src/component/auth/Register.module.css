@@ -1,7 +1,53 @@
-.center {
-    display: "flex";
-    justify-content: "center";
-    padding-top: "1em"
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    padding-top: 1em;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+.containerForm {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+.title {
+    flex: 1;
+}
+
+.username {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+    width: 35%;
+    margin-bottom: 1em;
+}
+
+.password {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+    width: 35%;
+    margin-bottom: 1em;
+}
+
+.name {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+    width: 35%;
+    margin-bottom: 1em;
+}
+
+.btnRegister {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
 }
 
 .notification {

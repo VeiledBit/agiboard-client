@@ -33,8 +33,8 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
             <div onClick={openForm}
                 className={styles.openFormButtonGroup}
                 style={{ opacity: buttonTextOpacity, borderTop: buttonBorderTop, marginTop: buttonMarginTop }}>
-                <Icon style={{ marginRight: "5px", marginTop: "12px" }}>add</Icon>
-                <p>{buttonText}</p>
+                <Icon style={{ marginRight: "0.5em", marginTop: "1em" }}>add</Icon>
+                <p className={styles.buttonText}>{buttonText}</p>
             </div>
         )
     };

@@ -69,10 +69,10 @@ export default function Login() {
         <React.Fragment>
             <AppBar position="static">
                 <Toolbar>
-                    <Typography variant="h6" className="title">
-                        Agiboard
+                    <Typography variant="h6" className={styles.title}>
+                        AGIBOARD
                     </Typography>
-                    <div className={stylesNavBar.dropdownMaterial}>
+                    <div>
                         <Button className={`${stylesNavBar.btnMaterial} ${stylesNavBar.btnCreate}`} onClick={onClickRegister}>
                             REGISTER
                         </Button>
