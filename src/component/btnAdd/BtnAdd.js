@@ -75,7 +75,7 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
                         <Button
                             type="submit"
                             variant="contained"
-                            style={{ color: "white", backgroundColor: "#5aac44" }}>
+                            color="success">
                             {buttonTitle}
                         </Button>
                     </div>

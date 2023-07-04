@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd"
-import { Input } from "@mui/material";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-import "react-bootstrap";
+import { Input, Button } from "@mui/material";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 import styles from "./Card.module.css";
 
 export default function Card({ key, card, index, columnId, updateCard, deleteCard }) {
@@ -58,9 +58,9 @@ export default function Card({ key, card, index, columnId, updateCard, deleteCar
                     </div>
                 )}
             </Draggable>
-            <Modal onHide={hideModal} show={isModalShowed} centered>
-                <form className="form" onSubmit={handleSubmit(submit)}>
-                    <Modal.Body>
+            <Dialog open={isModalShowed} onClose={hideModal}>
+                <DialogContent style={{ width: "550px" }}>
+                    <form id="formNewCard" onSubmit={handleSubmit(submit)}>
                         <Input
                             type="text"
                             name="newCardName"
@@ -69,14 +69,13 @@ export default function Card({ key, card, index, columnId, updateCard, deleteCar
                             style={{ width: "100%" }}
                             {...register("newCardName", { required: true })}
                         />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" type="submit">Submit</Button>
-                        <Button variant="secondary" onClick={hideModal}>Close</Button>
-                        <Button variant="danger" onClick={handleDeletion}>DELETE CARD</Button>
-                    </Modal.Footer>
-                </form>
-            </Modal>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Button form="formNewCard" variant="contained" color="primary" type="submit">Submit</Button>
+                    <Button variant="contained" color="error" onClick={handleDeletion}>DELETE CARD</Button>
+                </DialogActions>
+            </Dialog>
         </React.Fragment>
     );
 }

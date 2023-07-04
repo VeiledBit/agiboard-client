@@ -4,7 +4,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
-import Button from "react-bootstrap/Button";
+import Button from "@mui/material/Button";
 
 export default function ConfirmDialog({open, onClose, DialogTitleProp, DialogContentProp, onClickCancel, onClickConfirm}) {
     return (
@@ -18,10 +18,7 @@ export default function ConfirmDialog({open, onClose, DialogTitleProp, DialogCon
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClickCancel} variant="secondary" autoFocus>
-                    Cancel
-                </Button>
-                <Button onClick={onClickConfirm} variant="danger">
+                <Button onClick={onClickConfirm} variant="contained" color="error">
                     Delete
                 </Button>
             </DialogActions>

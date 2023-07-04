@@ -6,13 +6,14 @@ import AuthService from "../../service/AuthService";
 import NavBar from "../navBar/NavBar";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
 import UserService from "../../service/UserService";
-import "react-bootstrap";
 import { Link } from "react-router-dom";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
-import { Icon, Input } from "@mui/material";
+import { Icon, Input, Button } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 import styles from "./Boards.module.css";
+
 
 export default function Boards() {
     const navigate = useNavigate();
@@ -97,6 +98,8 @@ export default function Boards() {
 
     const showModalCreate = () => {
         changeModalStateCreate(true)
+        console.log(newBoardName)
+        setValue("newBoardName", "");
     };
 
     const hideModalCreate = () => {
@@ -277,24 +280,22 @@ export default function Boards() {
             <React.Fragment>
                 <NavBar create={showModalCreate} logout={logout}
                     deleteAccount={showModalConfirmAccountDeletion} />
-                <Modal onHide={hideModalCreate} show={isModalCreateShowed} size="sm"
-                    aria-labelledby="contained-modal-title-vcenter" centered>
-                    <form className="form" onSubmit={handleSubmitSave(saveBoard)}>
-                        <Modal.Body>
+                <Dialog open={isModalCreateShowed} onClose={hideModalCreate}>
+                    <DialogContent style={{ width: "300px" }}>
+                        <form id="formNewBoard" onSubmit={handleSubmitSave(saveBoard)}>
                             <Input
                                 type="text"
                                 name="newBoardName"
                                 placeholder="Enter board name..."
-                                inputProps={{ "aria-label": "description" }}
+                                autoFocus
                                 {...registerSave("newBoardName", { required: true })}
                             />
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="primary" type="submit">Submit</Button>
-                            <Button variant="secondary" onClick={hideModalCreate}>Close</Button>
-                        </Modal.Footer>
-                    </form>
-                </Modal>
+                        </form>
+                    </DialogContent>
+                    <DialogActions>
+                    <Button form="formNewBoard" variant="contained" color="primary" type="submit">Submit</Button>
+                    </DialogActions>
+                </Dialog>
                 <ConfirmDialog open={isModalConfirmAccountDeletionShowed}
                     onClose={hideModalConfirmAccountDeletion}
                     DialogTitleProp={"Account deletion"}
@@ -330,33 +331,29 @@ export default function Boards() {
                     })
                 }
             </div>
-            <Modal onHide={hideModalCreate} show={isModalCreateShowed} size="sm"
-                aria-labelledby="contained-modal-title-vcenter" centered>
-                <form className="form" onSubmit={handleSubmitSave(saveBoard)}>
-                    <Modal.Body style={{ width: "600px" }}>
+            <Dialog open={isModalCreateShowed} onClose={hideModalCreate}>
+                <DialogContent style={{ width: "300px" }}>
+                    <form id="formNewBoard" onSubmit={handleSubmitSave(saveBoard)}>
                         <Input
                             type="text"
                             name="newBoardName"
                             placeholder="Enter board name..."
-                            inputProps={{ "aria-label": "description" }}
+                            autoFocus
                             {...registerSave("newBoardName", { required: true })}
                         />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" type="submit">Submit</Button>
-                        <Button variant="secondary" onClick={hideModalCreate}>Close</Button>
-                    </Modal.Footer>
-                </form>
-            </Modal>
-            <Modal onHide={hideModalUpdate} show={isModalUpdateShowed}
-                aria-labelledby="contained-modal-title-vcenter" centered>
-                <form className="form" onSubmit={handleSubmitEdit(updateBoard)}>
-                    <Modal.Body style={{ width: "600px" }}>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Button form="formNewBoard" variant="contained" color="primary" type="submit">Submit</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={isModalUpdateShowed} onClose={hideModalUpdate} >
+                <DialogContent style={{ width: "524px", padding: "20px 8px 20px 24px" }}>
+                    <form id="formEditBoard" onSubmit={handleSubmitEdit(updateBoard)}>
                         <Input
                             type="text"
                             name="editBoardName"
                             placeholder="Enter board name..."
-                            inputProps={{ "aria-label": "description" }}
                             {...registerEdit("editBoardName", { required: true })}
                         />
                         <br />
@@ -368,17 +365,16 @@ export default function Boards() {
                             style={{ width: "18.750em" }}
                             {...registerEdit("editBoardUsername")}
                         />
-                        <Button style={{ marginLeft: "10px", marginRight: "10px", verticalAlign: "inherit" }}
-                            variant="success" onClick={handleSubmitEdit(addUserToBoard)}>ADD</Button>
-                        <Button style={{ marginRight: "10px", verticalAlign: "inherit" }} variant="danger"
+                        <Button style={{ marginLeft: "24px", marginRight: "8px", verticalAlign: "inherit" }}
+                            variant="contained" color="success" onClick={handleSubmitEdit(addUserToBoard)}>ADD</Button>
+                        <Button style={{ verticalAlign: "inherit", float: "right" }} variant="contained" color="error" 
                             onClick={handleSubmitEdit(removeUserFromBoard)}>REMOVE</Button>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" type="submit">Submit</Button>
-                        <Button variant="secondary" onClick={hideModalUpdate}>Close</Button>
-                    </Modal.Footer>
-                </form>
-            </Modal>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Button form="formEditBoard" variant="contained" color="primary" type="submit">Submit</Button>
+                </DialogActions>
+            </Dialog>
             <Snackbar
                 open={isSnackbarUserAddingSuccessful}
                 autoHideDuration={4000}

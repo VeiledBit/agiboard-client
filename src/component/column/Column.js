@@ -3,11 +3,11 @@ import { Draggable, Droppable } from "react-beautiful-dnd"
 import { useForm } from "react-hook-form";
 import Card from "../card/Card";
 import BtnAdd from "../btnAdd/BtnAdd";
-import { Input } from "@mui/material";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
+import { Input, Button } from "@mui/material";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
-import "react-bootstrap";
 import styles from "./Column.module.css";
 
 export default function Column({ key, column, cards, index, updateColumn, deleteColumn, saveCard, updateCard, deleteCard }) {
@@ -88,10 +88,9 @@ export default function Column({ key, column, cards, index, updateColumn, delete
                     </div>
                 )}
             </Draggable>
-            <Modal onHide={hideModal} show={isModalShowed}
-                aria-labelledby="contained-modal-title-vcenter" centered>
-                <form className="form" onSubmit={handleSubmit(submit)}>
-                    <Modal.Body>
+            <Dialog open={isModalShowed} onClose={hideModal}>
+                <DialogContent style={{ width: "550px" }}>
+                    <form id="formNewColumn" onSubmit={handleSubmit(submit)}>
                         <Input
                             name="newColumnName"
                             placeholder="Enter column name..."
@@ -99,18 +98,17 @@ export default function Column({ key, column, cards, index, updateColumn, delete
                             style={{ width: "100%" }}
                             {...register("newColumnName", { required: true })}
                         />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" type="submit">Submit</Button>
-                        <Button variant="secondary" onClick={hideModal}>Close</Button>
-                        <Button variant="danger" onClick={showConfirmDialog}>DELETE COLUMN</Button>
-                    </Modal.Footer>
-                </form>
-            </Modal>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Button form="formNewColumn" variant="contained" color="primary" type="submit">Submit</Button>
+                    <Button variant="contained" color="error" onClick={showConfirmDialog}>DELETE COLUMN</Button>
+                </DialogActions>
+            </Dialog>
             <ConfirmDialog open={isConfirmDialogShowed}
                 onClose={hideConfirmDialog}
                 DialogTitleProp={"Column Deletion"}
-                DialogContentProp={"re you sure you want to delete this column?"}
+                DialogContentProp={"Are you sure you want to delete this column?"}
                 onClickCancel={hideConfirmDialog}
                 onClickConfirm={handleDeletion} />
         </React.Fragment>
