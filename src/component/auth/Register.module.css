@@ -25,7 +25,9 @@
     flex: 0 1 auto;
     align-self: auto;
     width: 35%;
-    margin-bottom: 1em;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    min-height: 4em;
 }
 
 .password {
@@ -33,7 +35,9 @@
     flex: 0 1 auto;
     align-self: auto;
     width: 35%;
-    margin-bottom: 1em;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    min-height: 4em;
 }
 
 .name {
@@ -41,7 +45,9 @@
     flex: 0 1 auto;
     align-self: auto;
     width: 35%;
-    margin-bottom: 1em;
+    margin-top: 0 !important;
+    margin-bottom: 2em;
+    min-height: 4em;
 }
 
 .btnRegister {

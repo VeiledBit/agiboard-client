@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd"
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import Card from "../card/Card";
 import BtnAdd from "../btnAdd/BtnAdd";
-import { Input, Button } from "@mui/material";
+import { Button } from "@mui/material";
+import TextField from "@mui/material/TextField";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -15,11 +18,20 @@ export default function Column({ key, column, cards, index, updateColumn, delete
     const [isModalShowed, setIsModalShowed] = useState(false);
     const [isConfirmDialogShowed, setIsConfirmDialogShowed] = useState(false);
 
+    const validationSchema = Yup.object().shape({
+        newColumnName: Yup.string()
+            .required("Column name is required")
+            .max(30, "Maximum length is 30 characters"),
+    });
+
     const {
         register,
         handleSubmit,
-        setValue
-    } = useForm();
+        setValue,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(validationSchema)
+    });
 
     const changeModalState = (isModalShowed, isConfirmDialogShowed) => {
         setIsModalShowed(isModalShowed);
@@ -91,12 +103,16 @@ export default function Column({ key, column, cards, index, updateColumn, delete
             <Dialog open={isModalShowed} onClose={hideModal}>
                 <DialogContent style={{ width: "550px" }}>
                     <form id="formNewColumn" onSubmit={handleSubmit(submit)}>
-                        <Input
+                        <TextField
+                            type="text"
+                            variant="standard"
                             name="newColumnName"
                             placeholder="Enter column name..."
-                            inputProps={{ "aria-label": "description", maxLength: 30 }}
+                            inputProps={{ maxLength: 30 }}
                             style={{ width: "100%" }}
-                            {...register("newColumnName", { required: true })}
+                            {...register("newColumnName")}
+                            error={errors.newColumnName ? true : false}
+                            helperText={errors.newColumnName?.message}
                         />
                     </form>
                 </DialogContent>

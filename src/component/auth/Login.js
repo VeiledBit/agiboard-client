@@ -4,13 +4,16 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import Input from '@mui/material/Input';
+import TextField from "@mui/material/TextField";
 import AuthService from "../../service/AuthService";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Snackbar from "@mui/material/Snackbar";
+import Alert from '@mui/material/Alert';
 import { CircularProgress } from "@mui/material";
 import styles from "./Login.module.css";
 import stylesNavBar from "./../navBar/NavBar.module.css";
@@ -23,18 +26,27 @@ export default function Login() {
     const [isSnackbarWrongCredentialsShowed, setIsSnackbarWrongCredentialsShowed] =
         useState(false);
     const [isSpinnerShowed, setIsSpinnerShowed] = useState(false);
-    const [isSnackBarTimeoutShowed, setIsSnackBarTimeoutShowed] = useState(false);
+
+    useEffect(() => {
+        localStorage.clear();
+    }, []);
+
+    const validationSchema = Yup.object().shape({
+        username: Yup.string()
+            .required("Username is required")
+            .max(30, "Maximum length is 30 characters"),
+        password: Yup.string()
+            .required("Password is required")
+            .max(30, "Maximum length is 30 characters")
+    });
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm();
-
-
-    useEffect(() => {
-        localStorage.clear();
-    }, []);
+    } = useForm({
+        resolver: yupResolver(validationSchema)
+    });
 
     const login = (formData) => {
         setIsSpinnerShowed(true);
@@ -49,15 +61,6 @@ export default function Login() {
             }
         }).catch(error => {
             setIsSpinnerShowed(false);
-            if (error.code === "ECONNABORTED") {
-                setIsSnackBarTimeoutShowed(true);
-            } else {
-                if (error.response !== undefined) {
-                    if (error.response.status === 401) {
-                        setIsSnackbarWrongCredentialsShowed(true);
-                    }
-                }
-            }
         });
     }
 
@@ -82,49 +85,41 @@ export default function Login() {
             <div className={styles.container}>
                 <h2 className={styles.title}>LOGIN</h2>
                 <form className={`${styles.container} ${styles.containerForm}`} onSubmit={handleSubmit(login)}>
-                    <Input
+                    <TextField
                         className={styles.username}
                         type="text"
+                        variant="standard"
                         name="username"
                         placeholder="Username"
-                        maxLength="30"
-                        {...register("username", { required: true, maxLength: 30 })}
+                        inputProps={{ maxLength: 30 }}
+                        {...register("username")}
                         error={errors.username ? true : false}
+                        helperText={errors.username?.message}
                     />
-                    <Input
+                    <TextField
                         className={styles.password}
                         type={isPasswordShowed ? "text" : "password"}
+                        variant="standard"
                         name="password"
                         placeholder="Password"
-                        maxLength="30"
+                        inputProps={{ maxLength: 30 }}
                         margin="normal"
-                        {...register("password", { required: true, maxLength: 30 })}
+                        {...register("password")}
                         error={errors.password ? true : false}
-                        endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setIsPasswordShowed(!isPasswordShowed)}
-                                    edge="end"
-                                >
-                                    {isPasswordShowed ?
-                                        <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                            </InputAdornment>
-                        }
+                        helperText={errors.password?.message}
+                        InputProps={{
+                            endAdornment:
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setIsPasswordShowed(!isPasswordShowed)}
+                                        edge="end" >
+                                        {isPasswordShowed ?
+                                            <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                        }}
                     />
-                    {errors.username?.type === "required" && (
-                        <span className="error">Username is required</span>
-                    )}
-                    {errors.username?.type === "maxLength" && (
-                        <span className="error">Maximum length is 30</span>
-                    )}
-                    {errors.password?.type === "required" && (
-                        <span className="error">Password is required</span>
-                    )}
-                    {errors.password?.type === "maxLength" && (
-                        <span className="error">Maximum length is 30</span>
-                    )}
                     <Button className={`${styles.btnLogin}`} type="submit" variant="contained">
                         Login
                     </Button>
@@ -133,13 +128,11 @@ export default function Login() {
             <Snackbar
                 open={isSnackbarWrongCredentialsShowed}
                 autoHideDuration={4000}
-                onClose={() => setIsSnackbarWrongCredentialsShowed(false)}
-                message="Wrong username and/or password." />
-            <Snackbar
-                open={isSnackBarTimeoutShowed}
-                autoHideDuration={5000}
-                onClose={() => setIsSnackBarTimeoutShowed(false)}
-                message="Backend services are hibernating, please wait a bit and try again." />
+                onClose={() => setIsSnackbarWrongCredentialsShowed(false)} >
+                <Alert variant="filled" severity="error" sx={{ width: '100%' }}>
+                    Wrong username and/or password.
+                </Alert>
+            </Snackbar>
             {isSpinnerShowed && <CircularProgress className={styles.spinner} />}
         </React.Fragment>
     )

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import { Draggable } from "react-beautiful-dnd"
 import { Input, Button } from "@mui/material";
+import TextField from "@mui/material/TextField";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -11,11 +14,20 @@ export default function Card({ key, card, index, columnId, updateCard, deleteCar
     const [isModalShowed, setIsModalShowed] = useState(false);
     const [newCardName, setNewCardName] = useState(card.name);
 
+    const validationSchema = Yup.object().shape({
+        newCardName: Yup.string()
+            .required("Card name is required")
+            .max(30, "Maximum length is 30 characters")
+    });
+
     const {
         register,
         handleSubmit,
-        setValue
-    } = useForm();
+        setValue,
+        formState: { errors }
+    } = useForm({
+        resolver: yupResolver(validationSchema)
+    });
 
     const changeModalState = (isModalShowed) => {
         setIsModalShowed(isModalShowed);
@@ -61,13 +73,16 @@ export default function Card({ key, card, index, columnId, updateCard, deleteCar
             <Dialog open={isModalShowed} onClose={hideModal}>
                 <DialogContent style={{ width: "550px" }}>
                     <form id="formNewCard" onSubmit={handleSubmit(submit)}>
-                        <Input
+                        <TextField
                             type="text"
+                            variant="standard"
                             name="newCardName"
                             placeholder="Enter card name..."
-                            inputProps={{ "aria-label": "description", maxLength: 30 }}
+                            inputProps={{ maxLength: 30 }}
                             style={{ width: "100%" }}
                             {...register("newCardName", { required: true })}
+                            error={errors.newCardName ? true : false}
+                            helperText={errors.newCardName?.message}
                         />
                     </form>
                 </DialogContent>

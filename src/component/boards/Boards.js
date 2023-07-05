@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import BoardService from "../../service/BoardService";
 import AuthService from "../../service/AuthService";
 import NavBar from "../navBar/NavBar";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
 import UserService from "../../service/UserService";
 import { Link } from "react-router-dom";
-import { Icon, Input, Button } from "@mui/material";
+import { Icon, Button } from "@mui/material";
+import TextField from "@mui/material/TextField";
 import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -31,16 +35,34 @@ export default function Boards() {
     const [isSnackbarUserAddingSuccessful, setIsSnackbarUserAddingSuccessful] = useState(false);
     const [isSnackbarUserRemovingSuccessful, setIsSnackbarUserRemovingSuccessful] = useState(false);
 
+    const validationSchemaNewBoard = Yup.object().shape({
+        newBoardName: Yup.string()
+            .required("Board name is required")
+    });
+
+    const validationSchemaEditBoard = Yup.object().shape({
+        editBoardName: Yup.string()
+            .required("Board name is required"),
+        editBoardUsername: Yup.string()
+            .max(30, "Maximum length is 30 characters"),
+    })
+
     const {
         register: registerSave,
         handleSubmit: handleSubmitSave,
-    } = useForm();
+        formState: { errors: errorsSave }
+    } = useForm({
+        resolver: yupResolver(validationSchemaNewBoard)
+    });
 
     const {
         register: registerEdit,
         handleSubmit: handleSubmitEdit,
-        setValue
-    } = useForm();
+        setValue,
+        formState: { errors: errorsEdit },
+    } = useForm({
+        resolver: yupResolver(validationSchemaEditBoard)
+    });
 
     useEffect(() => {
         BoardService.fetchBoards(AuthService.getUsername()).then(response => {
@@ -159,11 +181,6 @@ export default function Boards() {
     };
 
     const saveBoard = (formData) => {
-        console.log("firing");
-        if (!formData.newBoardName || formData.newBoardName.length === 0) {
-            alert("Please enter board name.");
-            return
-        }
         BoardService.saveBoard({
             boardName: formData.newBoardName,
             username: AuthService.getUsername()
@@ -180,10 +197,6 @@ export default function Boards() {
     }
 
     const updateBoard = (formData) => {
-        if (!formData.editBoardName || formData.editBoardName.length === 0) {
-            alert("Please enter board name.");
-            return
-        }
         BoardService.updateBoard({
             boardId: editBoardId,
             boardName: formData.editBoardName,
@@ -202,7 +215,6 @@ export default function Boards() {
 
     const addUserToBoard = (formData) => {
         if (!formData.editBoardUsername || formData.editBoardUsername.length === 0) {
-            alert("Please enter username.");
             return
         }
         BoardService.addUserToBoard({
@@ -224,7 +236,6 @@ export default function Boards() {
 
     const removeUserFromBoard = (formData) => {
         if (!formData.editBoardUsername || formData.editBoardUsername.length === 0) {
-            alert("Please enter username.");
             return
         }
         BoardService.removeUserFromBoard({
@@ -283,17 +294,20 @@ export default function Boards() {
                 <Dialog open={isModalCreateShowed} onClose={hideModalCreate}>
                     <DialogContent style={{ width: "300px" }}>
                         <form id="formNewBoard" onSubmit={handleSubmitSave(saveBoard)}>
-                            <Input
+                            <TextField
                                 type="text"
+                                variant="standard"
                                 name="newBoardName"
                                 placeholder="Enter board name..."
                                 autoFocus
-                                {...registerSave("newBoardName", { required: true })}
+                                {...registerSave("newBoardName")}
+                                error={errorsSave.newBoardName ? true : false}
+                                helperText={errorsSave.newBoardName?.message}
                             />
                         </form>
                     </DialogContent>
                     <DialogActions>
-                    <Button form="formNewBoard" variant="contained" color="primary" type="submit">Submit</Button>
+                        <Button form="formNewBoard" variant="contained" color="primary" type="submit">Submit</Button>
                     </DialogActions>
                 </Dialog>
                 <ConfirmDialog open={isModalConfirmAccountDeletionShowed}
@@ -334,12 +348,15 @@ export default function Boards() {
             <Dialog open={isModalCreateShowed} onClose={hideModalCreate}>
                 <DialogContent style={{ width: "300px" }}>
                     <form id="formNewBoard" onSubmit={handleSubmitSave(saveBoard)}>
-                        <Input
+                        <TextField
                             type="text"
+                            variant="standard"
                             name="newBoardName"
                             placeholder="Enter board name..."
                             autoFocus
-                            {...registerSave("newBoardName", { required: true })}
+                            {...registerSave("newBoardName")}
+                            error={errorsSave.newBoardName ? true : false}
+                            helperText={errorsSave.newBoardName?.message}
                         />
                     </form>
                 </DialogContent>
@@ -350,24 +367,30 @@ export default function Boards() {
             <Dialog open={isModalUpdateShowed} onClose={hideModalUpdate} >
                 <DialogContent style={{ width: "524px", padding: "20px 8px 20px 24px" }}>
                     <form id="formEditBoard" onSubmit={handleSubmitEdit(updateBoard)}>
-                        <Input
+                        <TextField
                             type="text"
+                            variant="standard"
                             name="editBoardName"
                             placeholder="Enter board name..."
-                            {...registerEdit("editBoardName", { required: true })}
+                            {...registerEdit("editBoardName")}
+                            error={errorsEdit.editBoardName ? true : false}
+                            helperText={errorsEdit.editBoardName?.message}
                         />
                         <br />
-                        <Input
+                        <TextField
                             type="text"
+                            variant="standard"
                             name="editBoardUsername"
                             placeholder="Enter username to add to the board..."
-                            inputProps={{ "aria-label": "description", maxLength: 30 }}
+                            inputProps={{ maxLength: 30 }}
                             style={{ width: "18.750em" }}
                             {...registerEdit("editBoardUsername")}
+                            error={errorsEdit.editBoardUsername ? true : false}
+                            helperText={errorsEdit.editBoardUsername?.message}
                         />
                         <Button style={{ marginLeft: "24px", marginRight: "8px", verticalAlign: "inherit" }}
                             variant="contained" color="success" onClick={handleSubmitEdit(addUserToBoard)}>ADD</Button>
-                        <Button style={{ verticalAlign: "inherit", float: "right" }} variant="contained" color="error" 
+                        <Button style={{ verticalAlign: "inherit", float: "right" }} variant="contained" color="error"
                             onClick={handleSubmitEdit(removeUserFromBoard)}>REMOVE</Button>
                     </form>
                 </DialogContent>
@@ -379,17 +402,29 @@ export default function Boards() {
                 open={isSnackbarUserAddingSuccessful}
                 autoHideDuration={4000}
                 onClose={() => setStateSnackbarUserAddingSuccessful(false)}
-                message="Adding successful." />
+                message="Adding successful." >
+                <Alert variant="filled" severity="success" sx={{ width: '100%' }}>
+                    Adding successful.
+                </Alert>
+            </Snackbar>
             <Snackbar
                 open={isSnackbarUserRemovingSuccessful}
                 autoHideDuration={4000}
                 onClose={() => setStateSnackbarUserRemovingSuccessful(false)}
-                message="Removing successful." />
+                message="Removing successful." >
+                <Alert variant="filled" severity="success" sx={{ width: '100%' }}>
+                    Removing successful.
+                </Alert>
+            </Snackbar>
             <Snackbar
                 open={isSnackbarUserNotFoundShowed}
                 autoHideDuration={4000}
                 onClose={() => setStateSnackbarUserNotFound(false)}
-                message="User not found." />
+                message="User not found." >
+                <Alert variant="filled" severity="error" sx={{ width: '100%' }}>
+                    User not found.
+                </Alert>
+            </Snackbar>
             <ConfirmDialog open={isModalConfirmBoardDeletionShowed}
                 onClose={hideModalConfirmBoardDeletion}
                 DialogTitleProp={"Board deletion"}

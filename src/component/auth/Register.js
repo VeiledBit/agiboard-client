@@ -3,14 +3,17 @@ import { useNavigate } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Input from '@mui/material/Input';
+import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import UserService from "../../service/UserService";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import styles from "./Register.module.css";
 import stylesNavBar from "./../navBar/NavBar.module.css";
 
@@ -20,15 +23,32 @@ export default function Register() {
     const [password, setPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const [isPasswordShowed, setIsPasswordShowed] = useState(false);
-    const [isPasswordRepeatShowed, setIsPasswordRepeatShowed] = useState(false);
+    const [isPasswordConfirmShowed, setIsPasswordConfirmShowed] = useState(false);
     const [isSnackbarRegistrationSuccessfulShowed, setIsSnackbarRegistrationSuccessfulShowed] = useState(false);
     const [isSnackbarUsernameTakenShowed, setIsSnackbarUsernameTakenShowed] = useState(false);
+
+    const validationSchema = Yup.object().shape({
+        username: Yup.string()
+            .required("Username is required")
+            .max(30, "Maximum length is 30 characters"),
+        password: Yup.string()
+            .required("Password is required")
+            .max(30, "Maximum length is 30 characters"),
+        passwordConfirm: Yup.string()
+            .required("Confirm password is required")
+            .oneOf([Yup.ref("password"), null], "Confirm password does not match"),
+        name: Yup.string()
+            .required("Username is required")
+            .max(30, "Maximum length is 30 characters")
+    });
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm();
+    } = useForm({
+        resolver: yupResolver(validationSchema)
+    });
 
     const registerUser = (formData) => {
         UserService.saveUser({
@@ -69,103 +89,97 @@ export default function Register() {
             <div className={styles.container}>
                 <h2 className={styles.title}>REGISTER</h2>
                 <form className={`${styles.container} ${styles.containerForm}`} onSubmit={handleSubmit(registerUser)}>
-                    <Input
+                    <TextField
                         className={styles.username}
                         type="text"
+                        variant="standard"
                         name="username"
                         placeholder="Username"
-                        maxLength="30"
+                        inputProps={{ maxLength: 30 }}
                         margin="normal"
-                        {...register("username", { required: true, maxLength: 30 })}
+                        {...register("username")}
+                        error={errors.username ? true : false}
+                        helperText={errors.username?.message}
                     />
-                    <Input
+                    <TextField
                         className={styles.password}
                         type={isPasswordShowed ? "text" : "password"}
+                        variant="standard"
                         name="password"
                         placeholder="Password"
-                        maxLength="30"
+                        inputProps={{ maxLength: 30 }}
                         margin="normal"
-                        {...register("password", { required: true, maxLength: 30 })}
-                        endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setIsPasswordShowed(!isPasswordShowed)}
-                                    edge="end"
-                                >
-                                    {isPasswordShowed ?
-                                        <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                            </InputAdornment>
-                        }
+                        {...register("password")}
+                        error={errors.password ? true : false}
+                        helperText={errors.password?.message}
+                        InputProps={{
+                            endAdornment:
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setIsPasswordShowed(!isPasswordShowed)}
+                                        edge="end" >
+                                        {isPasswordShowed ?
+                                            <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                        }}
                     />
-                    <Input
+                    <TextField
                         className={styles.password}
-                        type={isPasswordRepeatShowed ? "text" : "password"}
-                        name="passwordRepeat"
-                        placeholder="Repeat Password"
-                        maxLength="30"
+                        type={isPasswordConfirmShowed ? "text" : "password"}
+                        variant="standard"
+                        name="passwordConfirm"
+                        placeholder="Confirm Password"
+                        inputProps={{ maxLength: 30 }}
                         margin="normal"
-                        {...register("passwordRepeat", { required: true, maxLength: 30 })}
-                        endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setIsPasswordRepeatShowed(!isPasswordRepeatShowed)}
-                                    edge="end"
-                                >
-                                    {isPasswordRepeatShowed ?
-                                        <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                            </InputAdornment>
-                        }
+                        {...register("passwordConfirm")}
+                        error={errors.passwordConfirm ? true : false}
+                        helperText={errors.passwordConfirm?.message}
+                        InputProps={{
+                            endAdornment:
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setIsPasswordConfirmShowed(!isPasswordConfirmShowed)}
+                                        edge="end" >
+                                        {isPasswordConfirmShowed ?
+                                            <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                        }}
                     />
-                    <Input
+                    <TextField
                         className={styles.name}
                         type="text"
+                        variant="standard"
                         name="name"
                         placeholder="Name"
-                        maxLength="30"
+                        inputProps={{ maxLength: 30 }}
                         margin="normal"
-                        {...register("name", { required: true, maxLength: 30 })}
+                        {...register("name")}
+                        error={errors.name ? true : false}
+                        helperText={errors.name?.message}
                     />
-                    {errors.username?.type === "required" && (
-                        <span className="error">Username is required</span>
-                    )}
-                    {errors.username?.type === "maxLength" && (
-                        <span className="error">Maximum length is 30</span>
-                    )}
-                    {errors.password?.type === "required" && (
-                        <span className="error">Password is required</span>
-                    )}
-                    {errors.password?.type === "maxLength" && (
-                        <span className="error">Maximum length is 30</span>
-                    )}
-                    {errors.passwordRepeat?.type === "required" && (
-                        <span className="error">Password is required</span>
-                    )}
-                    {errors.passwordRepeat?.type === "maxLength" && (
-                        <span className="error">Maximum length is 30</span>
-                    )}
-                    {errors.name?.type === "required" && (
-                        <span className="error">Name is required</span>
-                    )}
-                    {errors.name?.type === "maxLength" && (
-                        <span className="error">Maximum length is 30</span>
-                    )}
                     <Button className={`${styles.btnRegister}`} variant="contained" type="submit">Register</Button>
                 </form>
             </div>
             <Snackbar
                 open={isSnackbarRegistrationSuccessfulShowed}
                 autoHideDuration={2000}
-                onClose={() => null}
-                message="Registration successful. Redirecting..." />
+                onClose={() => setIsSnackbarRegistrationSuccessfulShowed(false)}>
+                <Alert variant="filled" severity="success" sx={{ width: '100%' }}>
+                    Registration successful. Redirecting...
+                </Alert>
+            </Snackbar>
             <Snackbar
                 open={isSnackbarUsernameTakenShowed}
-                autoHideDuration={4000}
-                onClose={() => this.handleVisualChange("isSnackbarUsernameTakenShowed")}
-                message="Username is already taken." />
+                autoHideDuration={3500}
+                onClose={() => setIsSnackbarUsernameTakenShowed(false)}>
+                <Alert variant="filled" severity="error" sx={{ width: '100%' }}>
+                    Username is already taken.
+                </Alert>
+            </Snackbar>
         </React.Fragment>
     );
 }
