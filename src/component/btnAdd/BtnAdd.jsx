@@ -35,7 +35,12 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
             <div
                 onClick={() => setIsFormOpen(true)}
                 className={styles.openFormButtonGroup}
-                style={{ opacity: buttonTextOpacity, borderTop: buttonBorderTop, marginTop: buttonMarginTop }}
+                style={{
+                    opacity: buttonTextOpacity,
+                    borderTop: buttonBorderTop,
+                    marginTop: buttonMarginTop,
+                    width: "17em"
+                }}
             >
                 <Icon style={{ marginRight: "0.5em", marginTop: "1em" }}>add</Icon>
                 <p className={styles.buttonText}>{buttonText}</p>
