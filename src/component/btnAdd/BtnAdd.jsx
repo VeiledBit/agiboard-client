@@ -4,16 +4,12 @@ import { Button, Card as MaterialCard, Icon } from "@mui/material";
 import Textarea from "react-textarea-autosize";
 import styles from "./BtnAdd.module.css";
 
+// eslint-disable-next-line object-curly-newline
 export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
-    const [name, setName] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const divFormWrapperRef = useRef(null);
 
-    const {
-        register,
-        handleSubmit,
-        setValue
-    } = useForm();
+    const { register, handleSubmit, setValue } = useForm();
 
     useEffect(() => {
         const closeOpenMenus = (e) => {
@@ -21,13 +17,13 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
                 setIsFormOpen(false);
                 setValue("name", "");
             }
-        }
-        
+        };
+
         document.addEventListener("mousedown", closeOpenMenus);
         return () => {
             document.removeEventListener("mousedown", closeOpenMenus);
-        }
-    }, [isFormOpen, setValue])
+        };
+    }, [isFormOpen, setValue]);
 
     const renderAddButton = () => {
         const buttonText = column ? "Add another column" : "Add another card";
@@ -36,20 +32,22 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
         const buttonMarginTop = column ? "0.5em" : "0em";
 
         return (
-            <div onClick={() => setIsFormOpen(true)}
+            <div
+                onClick={() => setIsFormOpen(true)}
                 className={styles.openFormButtonGroup}
-                style={{ opacity: buttonTextOpacity, borderTop: buttonBorderTop, marginTop: buttonMarginTop }}>
+                style={{ opacity: buttonTextOpacity, borderTop: buttonBorderTop, marginTop: buttonMarginTop }}
+            >
                 <Icon style={{ marginRight: "0.5em", marginTop: "1em" }}>add</Icon>
                 <p className={styles.buttonText}>{buttonText}</p>
             </div>
-        )
+        );
     };
 
     const handleSaving = (formData) => {
         if (!formData.name || formData.name.length === 0) {
-            alert("Please enter new name.");
-            return
+            return;
         }
+        // eslint-disable-next-line no-unused-expressions
         column ? saveColumn(formData.name) : saveCard(columnId, formData.name);
         setIsFormOpen(false);
         setValue("name", "");
@@ -64,7 +62,8 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
             <div style={{ marginTop: "0.500em" }} ref={divFormWrapperRef}>
                 <form className="form" onSubmit={handleSubmit(handleSaving)}>
                     <MaterialCard className={styles.materialCard}>
-                        <Textarea className={`${styles.materialCard} ${styles.textArea} `}
+                        <Textarea
+                            className={`${styles.materialCard} ${styles.textArea} `}
                             placeholder={placeholder}
                             autoFocus
                             maxLength="50"
@@ -72,16 +71,13 @@ export default function BtnAdd({ column, columnId, saveColumn, saveCard }) {
                         />
                     </MaterialCard>
                     <div className={styles.openFormButtonGroup} style={{ borderTop: buttonBorderTop }}>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="success">
+                        <Button type="submit" variant="contained" color="success">
                             {buttonTitle}
                         </Button>
                     </div>
                 </form>
             </div>
-        )
+        );
     };
 
     return isFormOpen ? renderForm() : renderAddButton();

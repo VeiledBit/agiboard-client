@@ -1,5 +1,5 @@
 .container {
-    margin: 0.500em;
+    margin: 0.5em;
     border: 0.063em solid lightgrey;
     background-color: white;
     border-radius: 0.125em;
@@ -9,12 +9,12 @@
 }
 
 .title {
-    padding: 0.500em;
+    padding: 0.5em;
 }
 
 .cardList {
-    padding: 0.500em;
+    padding: 0.5em;
     transition: background-color 0.2s ease;
     flex-grow: 1;
-    min-height: 6.250em;
+    min-height: 6.25em;
 }

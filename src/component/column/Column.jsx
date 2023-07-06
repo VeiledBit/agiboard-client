@@ -1,97 +1,96 @@
+/* eslint-disable no-shadow */
 import React, { useState } from "react";
-import { Draggable, Droppable } from "react-beautiful-dnd"
+import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import Card from "../card/Card";
-import BtnAdd from "../btnAdd/BtnAdd";
 import { Button } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import BtnAdd from "../btnAdd/BtnAdd";
+import Card from "../card/Card";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
 import styles from "./Column.module.css";
 
-export default function Column({ key, column, cards, index, updateColumn, deleteColumn, saveCard, updateCard, deleteCard }) {
-    const [newColumnName, setColumnName] = useState(column.name);
+// eslint-disable-next-line object-curly-newline
+export default function Column({ column, cards, index, updateColumn, deleteColumn, saveCard, updateCard, deleteCard }) {
     const [isModalShowed, setIsModalShowed] = useState(false);
     const [isConfirmDialogShowed, setIsConfirmDialogShowed] = useState(false);
 
     const validationSchema = Yup.object().shape({
-        newColumnName: Yup.string()
-            .required("Column name is required")
-            .max(30, "Maximum length is 30 characters"),
+        newColumnName: Yup.string().required("Column name is required").max(30, "Maximum length is 30 characters")
     });
 
     const {
         register,
         handleSubmit,
         setValue,
-        formState: { errors },
+        formState: { errors }
     } = useForm({
         resolver: yupResolver(validationSchema)
     });
 
-    const changeModalState = (isModalShowed, isConfirmDialogShowed) => {
-        setIsModalShowed(isModalShowed);
-        setIsConfirmDialogShowed(isConfirmDialogShowed);
+    const changeModalState = (isModalShowedParam, isConfirmDialogShowedParam) => {
+        setIsModalShowed(isModalShowedParam);
+        setIsConfirmDialogShowed(isConfirmDialogShowedParam);
     };
 
     const showModal = () => {
-        changeModalState(true, false)
+        changeModalState(true, false);
         setValue("newColumnName", column.name);
     };
 
     const hideModal = () => {
-        changeModalState(false, false)
+        changeModalState(false, false);
     };
 
     const showConfirmDialog = () => {
-        changeModalState(true, true)
+        changeModalState(true, true);
     };
 
     const hideConfirmDialog = () => {
-        changeModalState(true, false)
+        changeModalState(true, false);
     };
 
     const submit = (formData) => {
         if (!formData.newColumnName || formData.newColumnName.length === 0) {
-            alert("Please enter column name.");
             return;
         }
         updateColumn(column.id, formData.newColumnName);
-        hideModal()
-    }
+        hideModal();
+    };
 
     const handleDeletion = () => {
         deleteColumn(column.id);
     };
 
     return (
-        <React.Fragment>
+        <>
             <Draggable draggableId={column.id} index={index}>
-                {provided => (
+                {(provided) => (
                     <div className={styles.container} {...provided.draggableProps} ref={provided.innerRef}>
                         <h3 className={styles.title} {...provided.dragHandleProps} onClick={showModal}>
-                            <div style={{ wordBreak: "break-all" }}>
-                                {column.name}
-                            </div>
+                            <div style={{ wordBreak: "break-all" }}>{column.name}</div>
                         </h3>
                         <Droppable droppableId={column.id} type="card">
-                            {(provided, snapshot) => (
-                                <div className={styles.cardList}
+                            {(provided) => (
+                                <div
+                                    className={styles.cardList}
                                     ref={provided.innerRef}
                                     {...provided.droppableProps}
-                                    isDraggingOver={snapshot.isDraggingOver}>
-
-                                    {cards.map((card, index) =>
-                                        <Card key={card.id}
+                                    // eslint-disable-next-line react/no-unknown-property
+                                >
+                                    {cards.map((card, index) => (
+                                        <Card
+                                            key={card.id}
                                             card={card}
                                             index={index}
-                                            columnId={column.id}
                                             updateCard={updateCard}
-                                            deleteCard={deleteCard} />)}
+                                            deleteCard={deleteCard}
+                                        />
+                                    ))}
                                     {provided.placeholder}
                                 </div>
                             )}
@@ -111,22 +110,27 @@ export default function Column({ key, column, cards, index, updateColumn, delete
                             inputProps={{ maxLength: 30 }}
                             style={{ width: "100%" }}
                             {...register("newColumnName")}
-                            error={errors.newColumnName ? true : false}
+                            error={!!errors.newColumnName}
                             helperText={errors.newColumnName?.message}
                         />
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button form="formNewColumn" variant="contained" color="primary" type="submit">Submit</Button>
-                    <Button variant="contained" color="error" onClick={showConfirmDialog}>DELETE COLUMN</Button>
+                    <Button form="formNewColumn" variant="contained" color="primary" type="submit">
+                        Submit
+                    </Button>
+                    <Button variant="contained" color="error" onClick={showConfirmDialog}>
+                        DELETE COLUMN
+                    </Button>
                 </DialogActions>
             </Dialog>
-            <ConfirmDialog open={isConfirmDialogShowed}
+            <ConfirmDialog
+                open={isConfirmDialogShowed}
                 onClose={hideConfirmDialog}
-                DialogTitleProp={"Column Deletion"}
-                DialogContentProp={"Are you sure you want to delete this column?"}
-                onClickCancel={hideConfirmDialog}
-                onClickConfirm={handleDeletion} />
-        </React.Fragment>
+                DialogTitleProp="Column Deletion"
+                DialogContentProp="Are you sure you want to delete this column?"
+                onClickConfirm={handleDeletion}
+            />
+        </>
     );
 }
