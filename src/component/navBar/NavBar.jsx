@@ -9,22 +9,26 @@ import AuthService from "../../service/AuthService";
 import styles from "./NavBar.module.css";
 
 // eslint-disable-next-line object-curly-newline
-export default function NavBar({ create, dashboard, logout, deleteAccount }) {
+export default function NavBar({ create, boardName, dashboard, logout, deleteAccount }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const title = boardName || "AGIBOARD";
 
     return (
         <div>
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" className={styles.title}>
-                        AGIBOARD
+                        {title}
                     </Typography>
                     {create ? (
                         <div>

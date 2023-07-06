@@ -11,12 +11,11 @@ import AuthService from "../../service/AuthService";
 import ConfirmDialog from "../confirmDialog/ConfirmDialog";
 import styles from "./Board.module.css";
 
-export default function Board() {
+export default function Board({ boardId }) {
     const navigate = useNavigate();
     // eslint-disable-next-line no-unused-vars
     // const newKey = props.key;
     // eslint-disable-next-line no-unused-vars
-    const [key, setKey] = useState(window.location.pathname.split("/")[2]);
     const [columns, setColumns] = useState({});
     const [cards, setCards] = useState({});
     const [columnOrder, setColumnOrder] = useState({});
@@ -44,7 +43,7 @@ export default function Board() {
             setColumnOrder(newColumnOrder);
 
             ColumnService.saveColumnOrder({
-                boardId: key,
+                boardId,
                 columnOrder: newColumnOrder
             }).then();
             return;
@@ -138,12 +137,12 @@ export default function Board() {
     };
 
     useEffect(() => {
-        makeRequest(ColumnService.getColumnById, key);
+        makeRequest(ColumnService.getColumnById, boardId);
     }, []);
 
     const saveColumn = (columnName) => {
         const data = {
-            boardId: key,
+            boardId,
             columnName
         };
         makeRequest(ColumnService.saveColumn, data);
@@ -151,7 +150,7 @@ export default function Board() {
 
     const updateColumn = (columnId, columnName) => {
         const data = {
-            boardId: key,
+            boardId,
             columnId,
             columnName
         };
@@ -160,7 +159,7 @@ export default function Board() {
 
     const deleteColumn = (columnId) => {
         const data = {
-            boardId: key,
+            boardId,
             columnId
         };
         makeRequest(ColumnService.deleteColumn, data);
@@ -168,7 +167,7 @@ export default function Board() {
 
     const saveCard = (columnId, cardName) => {
         const data = {
-            boardId: key,
+            boardId,
             columnId,
             cardName
         };
@@ -177,7 +176,7 @@ export default function Board() {
 
     const updateCard = (cardName, cardId) => {
         const data = {
-            boardId: key,
+            boardId,
             cardId,
             cardName
         };
@@ -186,7 +185,7 @@ export default function Board() {
 
     const deleteCard = (cardId) => {
         const data = {
-            boardId: key,
+            boardId,
             cardId
         };
         makeRequest(CardService.deleteCard, data);

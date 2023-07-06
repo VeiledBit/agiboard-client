@@ -1,12 +1,21 @@
 /* eslint-disable react/jsx-wrap-multilines */
 import React from "react";
 // eslint-disable-next-line object-curly-newline
-import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes, useParams } from "react-router-dom";
 import Login from "../auth/Login";
 import AuthService from "../../service/AuthService";
 import Boards from "../boards/Boards";
 import Register from "../auth/Register";
 import Board from "../board/Board";
+
+function BoardWrapper() {
+    const { id } = useParams();
+    return (
+        <PrivateRoute>
+            <Board boardId={id} />
+        </PrivateRoute>
+    );
+}
 
 export default function AppRouter() {
     return (
@@ -30,15 +39,7 @@ export default function AppRouter() {
                         </PrivateRoute>
                     }
                 />
-                <Route
-                    path="/board/:id"
-                    exact
-                    element={
-                        <PrivateRoute>
-                            <Board />
-                        </PrivateRoute>
-                    }
-                />
+                <Route path="/board/:id" exact element={<BoardWrapper />} />
                 <Route path="/register" exact element={<Register />} />
             </Routes>
         </Router>
