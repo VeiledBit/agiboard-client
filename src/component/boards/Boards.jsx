@@ -72,128 +72,49 @@ export default function Boards() {
             });
     }, [navigate]);
 
-    const updateState = (
-        editBoardIdParam,
-        deleteBoardIdParam,
-        isModalCreateShowedParam,
-        isModalUpdateShowedParam,
-        isModalConfirmBoardDeletionShowedParam,
-        isModalConfirmAccountDeletionShowedParam,
-        isSnackbarUserNotFoundShowedParam,
-        isSnackbarUserAddingSuccessfulParam,
-        isSnackbarUserRemovingSuccessfulParam,
-        response
-    ) => {
-        setBoards(response || boards);
-        setEditBoardId(editBoardIdParam);
-        setDeleteBoardId(deleteBoardIdParam);
-        setIsModalCreateShowed(isModalCreateShowedParam);
-        setIsModalUpdateShowed(isModalUpdateShowedParam);
-        setIsModalConfirmBoardDeletionShowed(isModalConfirmBoardDeletionShowedParam);
-        setIsModalConfirmAccountDeletionShowed(isModalConfirmAccountDeletionShowedParam);
-        setIsSnackbarUserNotFoundShowed(isSnackbarUserNotFoundShowedParam);
-        setIsSnackbarUserAddingSuccessful(isSnackbarUserAddingSuccessfulParam);
-        setIsSnackbarUserRemovingSuccessful(isSnackbarUserRemovingSuccessfulParam);
-    };
-
     const updateStateAfterWriting = (response) => {
-        updateState(null, null, false, false, false, false, false, false, false, response);
-    };
-
-    const changeModalStateCreate = (isModalCreateShowedParam) => {
-        updateState(null, null, isModalCreateShowedParam, false, false, false, false, false, false, false);
-    };
-
-    const changeModalStateUpdate = (isModalUpdateShowedParam, editBoardIdParam) => {
-        updateState(
-            editBoardIdParam,
-            null,
-            false,
-            isModalUpdateShowedParam,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-        );
+        setBoards(response || boards);
+        setIsModalCreateShowed(false);
+        setIsModalUpdateShowed(false);
+        setIsModalConfirmBoardDeletionShowed(false);
     };
 
     const showModalCreate = () => {
-        changeModalStateCreate(true);
+        setIsModalCreateShowed(true);
         setValue("newBoardName", "");
     };
 
     const hideModalCreate = () => {
-        changeModalStateCreate(false);
+        setIsModalCreateShowed(false);
     };
 
     const showModalUpdate = (editBoardIdParam, editBoardName) => {
-        changeModalStateUpdate(true, editBoardIdParam, editBoardName);
+        setIsModalUpdateShowed(true);
+        setEditBoardId(editBoardIdParam);
         setValue("editBoardName", editBoardName);
         setValue("editBoardUsername", "");
     };
 
     const hideModalUpdate = () => {
-        changeModalStateUpdate(false);
-    };
-
-    const changeModalStateConfirmBoardDeletion = (isModalConfirmBoardDeletionShowedParam, deleteBoardIdParam) => {
-        updateState(
-            null,
-            deleteBoardIdParam,
-            false,
-            false,
-            isModalConfirmBoardDeletionShowedParam,
-            false,
-            false,
-            false,
-            false,
-            false
-        );
-    };
-
-    const changeModalStateConfirmAccountDeletion = (isModalConfirmAccountDeletionShowedParam) => {
-        updateState(
-            null,
-            null,
-            false,
-            false,
-            false,
-            isModalConfirmAccountDeletionShowedParam,
-            false,
-            false,
-            false,
-            false
-        );
+        setIsModalUpdateShowed(false);
     };
 
     const showModalConfirmBoardDeletion = (boardId) => {
-        changeModalStateConfirmBoardDeletion(true, boardId);
+        setIsModalConfirmBoardDeletionShowed(true);
+        setDeleteBoardId(boardId);
     };
 
     const hideModalConfirmBoardDeletion = () => {
-        changeModalStateConfirmBoardDeletion(false, null);
+        setIsModalConfirmBoardDeletionShowed(false);
+        setDeleteBoardId(null);
     };
 
     const showModalConfirmAccountDeletion = () => {
-        changeModalStateConfirmAccountDeletion(true);
+        setIsModalConfirmAccountDeletionShowed(true);
     };
 
     const hideModalConfirmAccountDeletion = () => {
-        changeModalStateConfirmAccountDeletion(false);
-    };
-
-    const setStateSnackbarUserAddingSuccessful = (snackbarState) => {
-        setIsSnackbarUserAddingSuccessful(snackbarState);
-    };
-
-    const setStateSnackbarUserRemovingSuccessful = (snackbarState) => {
-        setIsSnackbarUserRemovingSuccessful(snackbarState);
-    };
-
-    const setStateSnackbarUserNotFound = (snackbarState) => {
-        setIsSnackbarUserNotFoundShowed(snackbarState);
+        setIsModalConfirmAccountDeletionShowed(false);
     };
 
     const saveBoard = (formData) => {
@@ -243,7 +164,7 @@ export default function Boards() {
         })
             .then((response) => {
                 if (response.status === 200) {
-                    setStateSnackbarUserAddingSuccessful(true);
+                    setIsSnackbarUserAddingSuccessful(true);
                 }
             })
             .catch((error) => {
@@ -251,7 +172,7 @@ export default function Boards() {
                     localStorage.clear(); // Prevent infinite loop
                     navigate("/");
                 } else if (error.response.status === 404) {
-                    setStateSnackbarUserNotFound(true);
+                    setIsSnackbarUserNotFoundShowed(true);
                 }
             });
     };
@@ -266,7 +187,7 @@ export default function Boards() {
         })
             .then((response) => {
                 if (response.status === 200) {
-                    setStateSnackbarUserRemovingSuccessful(true);
+                    setIsSnackbarUserRemovingSuccessful(true);
                 }
             })
             .catch((error) => {
@@ -274,7 +195,7 @@ export default function Boards() {
                     localStorage.clear(); // Prevent infinite loop
                     navigate("/");
                 } else if (error.response.status === 404) {
-                    setStateSnackbarUserNotFound(true);
+                    setIsSnackbarUserNotFoundShowed(true);
                 }
             });
     };
@@ -447,7 +368,7 @@ export default function Boards() {
             <Snackbar
                 open={isSnackbarUserAddingSuccessful}
                 autoHideDuration={4000}
-                onClose={() => setStateSnackbarUserAddingSuccessful(false)}
+                onClose={() => setIsSnackbarUserAddingSuccessful(false)}
                 message="Adding successful."
             >
                 <Alert variant="filled" severity="success" sx={{ width: "100%" }}>
@@ -457,7 +378,7 @@ export default function Boards() {
             <Snackbar
                 open={isSnackbarUserRemovingSuccessful}
                 autoHideDuration={4000}
-                onClose={() => setStateSnackbarUserRemovingSuccessful(false)}
+                onClose={() => setIsSnackbarUserRemovingSuccessful(false)}
                 message="Removing successful."
             >
                 <Alert variant="filled" severity="success" sx={{ width: "100%" }}>
@@ -467,7 +388,7 @@ export default function Boards() {
             <Snackbar
                 open={isSnackbarUserNotFoundShowed}
                 autoHideDuration={4000}
-                onClose={() => setStateSnackbarUserNotFound(false)}
+                onClose={() => setIsSnackbarUserNotFoundShowed(false)}
                 message="User not found."
             >
                 <Alert variant="filled" severity="error" sx={{ width: "100%" }}>

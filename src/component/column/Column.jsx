@@ -32,26 +32,23 @@ export default function Column({ column, cards, index, updateColumn, deleteColum
         resolver: yupResolver(validationSchema)
     });
 
-    const changeModalState = (isModalShowedParam, isConfirmDialogShowedParam) => {
-        setIsModalShowed(isModalShowedParam);
-        setIsConfirmDialogShowed(isConfirmDialogShowedParam);
-    };
-
     const showModal = () => {
-        changeModalState(true, false);
+        setIsModalShowed(true);
         setValue("newColumnName", column.name);
     };
 
     const hideModal = () => {
-        changeModalState(false, false);
+        setIsModalShowed(false);
     };
 
     const showConfirmDialog = () => {
-        changeModalState(true, true);
+        setIsModalShowed(true);
+        setIsConfirmDialogShowed(true);
     };
 
     const hideConfirmDialog = () => {
-        changeModalState(true, false);
+        setIsModalShowed(true);
+        setIsConfirmDialogShowed(false);
     };
 
     const submit = (formData) => {

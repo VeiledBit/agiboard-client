@@ -25,17 +25,13 @@ export default function Card({ card, index, updateCard, deleteCard }) {
         formState: { errors }
     } = useForm({ resolver: yupResolver(validationSchema) });
 
-    const changeModalState = (isModalShowedParam) => {
-        setIsModalShowed(isModalShowedParam);
-    };
-
     const showModal = () => {
-        changeModalState(true);
+        setIsModalShowed(true);
         setValue("newCardName", card.name);
     };
 
     const hideModal = () => {
-        changeModalState(false);
+        setIsModalShowed(false);
     };
 
     const submit = (formData) => {

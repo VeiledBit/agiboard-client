@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Column from "../column/Column";
@@ -101,16 +101,12 @@ export default function Board({ boardId }) {
         setBoardName(response.data[3]);
     };
 
-    const changeModalState = (isModalConfirmAccountDeletionShowedParam) => {
-        setIsModalConfirmAccountDeletionShowed(isModalConfirmAccountDeletionShowedParam);
-    };
-
     const showModalConfirmAccountDeletion = () => {
-        changeModalState(true);
+        setIsModalConfirmAccountDeletionShowed(true);
     };
 
     const hideModalConfirmAccountDeletion = () => {
-        changeModalState(false);
+        setIsModalConfirmAccountDeletionShowed(false);
     };
 
     const handleResponse = (response) => {
