@@ -54,8 +54,13 @@ export default function Login() {
                     navigate("/boards");
                 }
             })
-            .catch(() => {
+            .catch((error) => {
                 setIsSpinnerShowed(false);
+                if (error.response !== undefined) {
+                    if (error.response.status === 401) {
+                        setIsSnackbarWrongCredentialsShowed(true);
+                    }
+                }
             });
     };
 
