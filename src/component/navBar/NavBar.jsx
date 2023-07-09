@@ -21,6 +21,11 @@ export default function NavBar({ create, boardName, dashboard, logout, deleteAcc
         setAnchorEl(null);
     };
 
+    const menuDeleteAccount = () => {
+        setAnchorEl(null);
+        deleteAccount();
+    };
+
     const title = boardName || "AGIBOARD";
 
     return (
@@ -62,7 +67,7 @@ export default function NavBar({ create, boardName, dashboard, logout, deleteAcc
                         }}
                     >
                         <MenuItem onClick={logout}>LOGOUT</MenuItem>
-                        <MenuItem onClick={deleteAccount}>DELETE ACCOUNT</MenuItem>
+                        <MenuItem onClick={menuDeleteAccount}>DELETE ACCOUNT</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>
