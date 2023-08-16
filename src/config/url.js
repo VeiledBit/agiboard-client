@@ -1,3 +1,3 @@
-const baseUrl = process.env.NODE_ENV === "development" ? "http://localhost:8080" : "";
+const baseUrl = process.env.NODE_ENV === "development" ? "http://localhost:8080" : process.env.REACT_APP_BASE_URL;
 
 export default baseUrl;
